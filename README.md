@@ -1,7 +1,7 @@
 # PriceLens AI
 ### Inflation, purchasing-power, and cost-of-living intelligence
 
-**Status: M3 complete — Atlas, Basket Studio and income-group inflation run locally as a static site (not deployed).** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
+**Status: M4 complete — Atlas, Basket Studio, income groups and Forecast Lab run locally as a static site (not deployed).** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
 
 > **Core idea:** Inflation is reported as one headline percentage, but people buy different things. PriceLens helps users explore category-level price movements and understand how different spending weights — official income-quintile weights or a user's own illustrative basket — change the inflation that basket experiences.
 
@@ -70,7 +70,7 @@ See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for the data contract.
 
 ## Installation and demo status
 
-**M0 (source audit), M1 (warehouse), M2 (Inflation Atlas) and M3 (Basket Studio + income groups) complete.** Nothing is deployed. What works:
+**M0 (source audit), M1 (warehouse), M2 (Inflation Atlas) M3 (Basket Studio + income groups) and M4 (Forecast Lab) complete.** Nothing is deployed. What works:
 
 ```bash
 uv sync                      # Python 3.12 environment
@@ -78,6 +78,8 @@ uv run pricelens fetch       # Eurostat bulk snapshots -> data/raw/ (+ manifest 
 uv run pricelens audit       # M0 coverage / flags / weights / HBS report -> reports/m0_source_audit.md
 uv run pricelens curate      # normalized Parquet tables -> data/curated/
 uv run pricelens qa          # data-contract checks + official-HICP reconstruction -> reports/m1_qa.md
+uv run pricelens fetch-extra # first releases (flash), Oil Bulletin, EIA Brent, ECB EUR/USD + staff projections
+uv run pricelens forecast    # rolling-origin backtest + benchmarks + live forecast -> reports/m4_forecast.md
 uv run pricelens export      # compact JSON for the site -> app/public/data (committed)
 uv run pytest                # unit tests (connector, chain-linking, contributions, HBS bridge)
 
@@ -104,6 +106,12 @@ Light and dark themes, phone layouts and table views are included.
 **Income groups** shows inflation for each fifth of households by income in 25 countries.
 - It uses Household Budget Survey 2015/2020 spending shares, with imputed rent removed, price-updated and chained like the HICP.
 - It shows the gap between the lowest and highest income fifths, which categories drive it, and a ranking across the EU.
+
+**Forecast Lab** forecasts annual inflation 1–6 months ahead for the euro area, DE, FR, IT and ES, covering the headline and the energy, food, goods and services components. Full numbers are in [`reports/m4_forecast.md`](reports/m4_forecast.md). On the frozen 2020+ test period:
+- **It beats every simple rule.** Pooled ridge errs by 0.77 pp one month ahead, against 0.94 pp for the best rule (the 3-year seasonal mean); three months ahead it is 1.73 against 2.04 pp.
+- **It does not beat the official numbers.** Eurostat's flash estimate, published two weeks later, errs by 0.05 pp on the headline against our 0.31. ECB staff projections are also more accurate at quarterly horizons.
+- **Its ranges are too narrow in shocks:** the 80% ranges contained about 55% of outcomes in 2022–23.
+- **Method:** settings were chosen on 2012–2019 forecasts only, and every forecast uses only information available on the 15th of the following month.
 
 The official all-items HICP is reproduced from published division indices and weights within a 95th-percentile annual-rate gap of 0.014–0.031 pp for 28 of 29 geos. Italy is a documented exception; see [`reports/m1_qa.md`](reports/m1_qa.md).
 

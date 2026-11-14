@@ -4,16 +4,8 @@ import { type Meta, type Rates, useJson } from "@/lib/data";
 import { AtlasPage } from "@/pages/atlas";
 import { BasketPage } from "@/pages/basket";
 import { QuintilesPage } from "@/pages/quintiles";
+import { ForecastsPage } from "@/pages/forecasts";
 import { MethodPage } from "@/pages/method";
-
-function Placeholder({ title, milestone }: { title: string; milestone: string }) {
-  return (
-    <div className="py-16">
-      <h1 className="font-serif text-3xl text-ink">{title}</h1>
-      <p className="mt-2 text-ink-2">Not built yet — planned for {milestone}.</p>
-    </div>
-  );
-}
 
 export function App() {
   const { data: meta, error } = useJson<Meta>("meta.json");
@@ -26,7 +18,7 @@ export function App() {
           <Route path="/" element={<AtlasPage meta={meta} rates={rates} />} />
           <Route path="/basket" element={<BasketPage meta={meta} />} />
           <Route path="/quintiles" element={<QuintilesPage meta={meta} />} />
-          <Route path="/forecasts" element={<Placeholder title="Forecast Lab" milestone="M4" />} />
+          <Route path="/forecasts" element={<ForecastsPage meta={meta} rates={rates} />} />
           <Route path="/method" element={<MethodPage meta={meta} />} />
         </Routes>
       ) : (

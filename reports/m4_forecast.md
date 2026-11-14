@@ -1,6 +1,6 @@
 # M4 Forecast Laboratory report (generated)
 
-Generated 2026-11-14T20:05:54+00:00 by `uv run pricelens forecast`. Latest origin 2026-09-01, issued as of 2026-10-15. Scores are annual-rate errors of the target month, in percentage points, over the euro area, DE, FR, IT and ES × headline, energy, food, non-energy industrial goods and services.
+Generated 2026-11-14T20:15:28+00:00 by `uv run pricelens forecast`. Latest origin 2026-09-01, issued as of 2026-10-15. Scores are annual-rate errors of the target month, in percentage points, over the euro area, DE, FR, IT and ES × headline, energy, food, non-energy industrial goods and services.
 
 ## Model selection (validation origins 2012–2019 only; h = 1 and 3)
 
@@ -37,33 +37,33 @@ Chosen model: **Ridge, pooled**. Tuning grids: {"ridge": [{"params": {"alpha": 1
 
 ### By series type
 
-| code | h | ridge | seasonal_mean | no_change |
+| code | h | seasonal_mean | ridge | no_change |
 |---|---|---|---|---|
-| FOOD | 1 | 0.412 | 0.503 | 0.516 |
-| IGD_NNRG | 1 | 0.508 | 0.462 | 1.288 |
-| NRG | 1 | 2.271 | 3.024 | 2.538 |
-| SERV | 1 | 0.291 | 0.278 | 0.570 |
-| TOTAL | 1 | 0.365 | 0.436 | 0.542 |
-| FOOD | 3 | 0.993 | 1.309 | 1.333 |
-| IGD_NNRG | 3 | 0.813 | 0.887 | 2.488 |
-| NRG | 3 | 5.455 | 6.478 | 5.386 |
-| SERV | 3 | 0.535 | 0.551 | 1.235 |
-| TOTAL | 3 | 0.872 | 0.986 | 1.206 |
+| FOOD | 1 | 0.503 | 0.412 | 0.516 |
+| IGD_NNRG | 1 | 0.462 | 0.508 | 1.288 |
+| NRG | 1 | 3.024 | 2.271 | 2.538 |
+| SERV | 1 | 0.278 | 0.291 | 0.570 |
+| TOTAL | 1 | 0.436 | 0.365 | 0.542 |
+| FOOD | 3 | 1.309 | 0.993 | 1.333 |
+| IGD_NNRG | 3 | 0.887 | 0.813 | 2.488 |
+| NRG | 3 | 6.478 | 5.455 | 5.386 |
+| SERV | 3 | 0.551 | 0.535 | 1.235 |
+| TOTAL | 3 | 0.986 | 0.872 | 1.206 |
 
 ### By period (validation and test)
 
-| period | h | seasonal_mean | ridge |
+| period | h | ridge | seasonal_mean |
 |---|---|---|---|
-| 2012-19 (validation) | 1 | 0.489 | 0.385 |
-| 2020-21 pandemic | 1 | 0.738 | 0.610 |
-| 2022-23 energy shock | 1 | 1.378 | 1.170 |
-| 2024-25 normalisation | 1 | 0.699 | 0.572 |
-| 2026 shock | 1 | 0.890 | 0.617 |
-| 2012-19 (validation) | 3 | 0.997 | 0.885 |
-| 2020-21 pandemic | 3 | 1.608 | 1.291 |
-| 2022-23 energy shock | 3 | 2.972 | 2.753 |
-| 2024-25 normalisation | 3 | 1.509 | 1.075 |
-| 2026 shock | 3 | 1.721 | 1.719 |
+| 2012-19 (validation) | 1 | 0.385 | 0.489 |
+| 2020-21 pandemic | 1 | 0.610 | 0.738 |
+| 2022-23 energy shock | 1 | 1.170 | 1.378 |
+| 2024-25 normalisation | 1 | 0.572 | 0.699 |
+| 2026 shock | 1 | 0.617 | 0.890 |
+| 2012-19 (validation) | 3 | 0.885 | 0.997 |
+| 2020-21 pandemic | 3 | 1.291 | 1.608 |
+| 2022-23 energy shock | 3 | 2.753 | 2.972 |
+| 2024-25 normalisation | 3 | 1.075 | 1.509 |
+| 2026 shock | 3 | 1.719 | 1.721 |
 
 ### Interval calibration (empirical intervals from the model's own past errors)
 

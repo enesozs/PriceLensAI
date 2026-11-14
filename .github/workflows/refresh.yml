@@ -1,0 +1,38 @@
+# Monthly data refresh. Runs after Eurostat's full release (~mid-month) and after the flash (month end),
+# rebuilds the warehouse, QA gate, forecasts and site data, and opens a pull request for review.
+# It never deploys. Raw snapshots are kept as a workflow artifact (the HICP is overwritten on revision).
+name: refresh
+on:
+  schedule:
+    - cron: "0 7 20 * *"   # after the full HICP release
+    - cron: "0 7 3 * *"    # after the flash estimate
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run pricelens all
+      - run: uv run pytest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raw-snapshots-${{ github.run_id }}
+          path: data/raw
+          retention-days: 90
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data-refresh
+          title: "Data refresh: Eurostat HICP and forecast update"
+          commit-message: "Data refresh (automated): pricelens all"
+          body: |
+            Automated monthly refresh: `uv run pricelens all` (fetch, curate, QA gate, forecasts, export).
+            Review reports/m1_qa.md and reports/m4_forecast.md before merging. Nothing is deployed.
+          add-paths: |
+            app/public/data
+            reports

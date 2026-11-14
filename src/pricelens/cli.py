@@ -68,6 +68,25 @@ def cmd_export(args: argparse.Namespace) -> None:
     print(f"exported {len(sizes)} files, {sum(sizes.values()) / 1e6:.2f} MB")
 
 
+def cmd_all(args: argparse.Namespace) -> None:
+    """Full monthly refresh: sources -> warehouse -> QA gate -> forecasts -> site data."""
+    import time
+
+    steps = [
+        ("fetch", cmd_fetch),
+        ("fetch-extra", cmd_fetch_extra),
+        ("curate", cmd_curate),
+        ("qa", cmd_qa),
+        ("forecast", cmd_forecast),
+        ("export", cmd_export),
+    ]
+    for name, fn in steps:
+        t0 = time.time()
+        print(f"== {name}")
+        fn(argparse.Namespace(datasets=[]))
+        print(f"   {name} done in {time.time() - t0:.0f}s")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="pricelens")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -88,6 +107,8 @@ def main(argv: list[str] | None = None) -> None:
     q.set_defaults(func=cmd_qa)
     e = sub.add_parser("export", help="static JSON for the web app -> app/public/data")
     e.set_defaults(func=cmd_export)
+    al = sub.add_parser("all", help="full refresh: fetch, fetch-extra, curate, qa (gate), forecast, export")
+    al.set_defaults(func=cmd_all)
     args = p.parse_args(argv)
     args.func(args)
 

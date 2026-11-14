@@ -1,125 +1,112 @@
 # PriceLens AI
-### Inflation, purchasing-power, and cost-of-living intelligence
+### What is getting more expensive, for whom, where — and what comes next
 
-**Status: M4 complete — Atlas, Basket Studio, income groups and Forecast Lab run locally as a static site (not deployed).** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
+**Status: M0–M5 complete. The site runs locally as a static build; it is not deployed.**
 
-> **Core idea:** Inflation is reported as one headline percentage, but people buy different things. PriceLens helps users explore category-level price movements and understand how different spending weights — official income-quintile weights or a user's own illustrative basket — change the inflation that basket experiences.
+Inflation is reported as one headline number, but people buy different things. PriceLens is built on official Eurostat statistics. It shows:
+- which categories drive inflation in each EU country;
+- how inflation differs between the poorest and richest households, using official survey spending patterns;
+- how prices have moved for *your own* spending basket, computed privately in your browser;
+- where inflation is heading, with forecasts measured honestly against Eurostat's flash estimate and ECB staff projections.
 
-## The experience
+Every number is labelled as official, flash estimate, custom basket, income-group basket, model forecast, benchmark forecast or hypothetical scenario.
 
-A visitor opens an inflation atlas, chooses a country or the euro area, and examines food, housing, transport, energy and other price-index histories. They can see which components drive the headline rate, compare inflation for the lowest- and highest-income households using official survey weights, review ML forecasts with uncertainty, or enter an anonymous hypothetical monthly spending basket to compute a **custom basket price index**, not an official household CPI.
+| Atlas | Income groups |
+|---|---|
+| ![Inflation Atlas](docs/screenshots/atlas.png) | ![Income groups](docs/screenshots/income-groups.png) |
+| **Basket Studio** | **Forecast Lab** |
+| ![Basket Studio](docs/screenshots/basket.png) | ![Forecast Lab](docs/screenshots/forecasts.png) |
 
-For example, a hypothetical household spends 40% on rent, 25% on food, 15% on transport and 20% elsewhere. PriceLens reweights **published category indices** relative to a declared base period and shows how that basket's price level changes over time. If the spending categories are not comparable to the HICP classification, the app refuses or requires an explicit mapping disclaimer. The basket is computed in the browser; it never leaves the user's device.
+## What it shows
 
-## Main modules
+- **Inflation Atlas.** The 27 EU countries, the euro area and the EU, monthly since 2000. It has:
+  - the headline rate, with Eurostat's flash estimate when available;
+  - contributions of energy, food, goods and services;
+  - a 3-year category heatstrip centred on the 2% target;
+  - a country ranking and map;
+  - 13-category small multiples.
+- **Basket Studio.** Enter spending shares or monthly euro amounts, either re-weighted yearly like the official index or as a fixed basket. Compare the price level and annual rate with the official index, see contributions since a start month, and run a labelled 12-month hypothetical scenario. Nothing you enter leaves the browser.
+- **Income groups.** Inflation for each fifth of households by income in 25 countries, from Household Budget Survey spending shares (2015 and 2020 waves). It shows the gap between the lowest and highest income fifths and which categories drive it.
+- **Forecast Lab.** 1–6-month forecasts of the annual rate for the euro area, DE, FR, IT and ES (headline plus four components). It includes an out-of-sample track record, a model scoreboard, benchmarks and interval calibration.
 
-- **Inflation Atlas:** headline and category inflation for all EU countries and the euro area: contribution charts, category heatstrips, country rankings and a map; units, index base and publication date always visible.
-- **Basket Studio:** sliders or amounts for user-defined category weights; fixed-base and annually-chained modes; transparent formula; comparison to the official aggregate. Includes **scenarios** (an explicit assumed path for a category, labelled hypothetical).
-- **Quintile Lab:** inflation experienced by each income quintile, using **official Eurostat Household Budget Survey expenditure structures**, with wave, coverage and classification-mapping caveats shown.
-- **Forecast Laboratory:** 1- and 3-month category forecasts with rolling backtests and empirical intervals, benchmarked against naïve baselines **and published official/professional forecasts**.
-- **Research Workbench:** documented datasets, model comparisons, evaluation reports, exportable charts and, eventually, a tool-grounded LLM analyst.
+## Key results
 
-## Data and scope
+- **The maths reproduces the official index.**
+  - Rebuilding the all-items HICP from Eurostat's 13 published category indices and annual weights, with the official December-linked chain formula, matches the published annual rate within 0.014–0.031 pp (95th percentile) for 28 of 29 series since 2001.
+  - Italy is the documented exception; the hypothesis that its weights are not price-updated was tested and rejected ([`reports/m1_qa.md`](reports/m1_qa.md)).
+  - The browser basket code passes the same check.
+- **Who faces higher inflation differs by country.** In September 2026, with 2020 survey weights:
+  - in Belgium the lowest-income fifth faced 6.3% inflation against 3.8% for the highest, almost entirely because of housing and energy;
+  - in 13 of 21 countries the highest-income fifth currently faces *higher* inflation (Bulgaria −2.1 pp, Latvia −1.9 pp, Germany −1.2 pp);
+  - in 14 of 21 countries the gap is under 1 pp either way.
+- **The forecasts beat simple rules but not the officials** ([`reports/m4_forecast.md`](reports/m4_forecast.md)). On the frozen 2020+ test period:
+  - The chosen model, pooled ridge (picked on 2012–2019 forecasts only), errs by 0.77 pp one month ahead against 0.94 pp for the best simple rule, and by 1.73 against 2.04 pp three months ahead.
+  - Eurostat's flash estimate, published two weeks after our forecast, errs by just 0.05 pp on the headline. ECB staff projections are also more accurate.
+  - The ranges were too narrow in the 2020–23 shocks: 55–61% of outcomes fell inside the 80% range one month ahead.
 
-**Market: EU27 + euro area.** All countries and aggregates are ingested (it costs the same); forecasting starts with a smaller set (e.g. euro area, DE, FR, IT, ES), frozen at M0.
+## Run it
 
-Core (Eurostat, CC BY 4.0 — attribution, note modifications, no-endorsement disclaimer):
-- [Eurostat HICP portal](https://ec.europa.eu/eurostat/web/hicp) — official indices, methodology, classifications.
-- Monthly indices and rates: **`prc_hicp_minr`** (ECOICOP ver. 2). The older ECOICOP datasets (`prc_hicp_midx`, `prc_hicp_manr`, `prc_hicp_mmor`) are treated as legacy and used only for a documented bridge; M0 confirms their status.
-- Annual item weights: **`prc_hicp_iw`** (ECOICOP ver. 2, per 1000). `prc_hicp_inw` (1996–2025) is discontinued.
-- Household Budget Survey expenditure structure by income quintile: `hbs_str_t223` (2015 and 2020 waves).
-- Since January 2026 data, the HICP uses **ECOICOP ver. 2 (= COICOP 2018, 13 divisions)** with index reference period **2025=100**. Eurostat also publishes 2015=100 for continuity.
+```bash
+uv sync                          # Python 3.12 environment
+uv run pricelens all             # fetch -> fetch-extra -> curate -> qa (gate) -> forecast -> export   (~8 min from scratch)
+make test                        # ruff + pytest, then tsc, oxlint, vitest, build, Playwright smoke tests
 
-Candidate extensions, each requiring a licence check before use:
-- Forecast features: EU Weekly Oil Bulletin (fuel prices), EIA Brent price, ECB Data Portal exchange rates.
-- Forecast benchmarks: the Eurostat flash estimate, ECB/Eurosystem staff projections and the ECB Survey of Professional Forecasters.
-- Late, optional US extension: [BLS CPI](https://www.bls.gov/cpi/) with relative-importance weights. It uses a different methodology and is never mixed with HICP.
+cd app && npm install
+npm run dev                      # the site at http://127.0.0.1:5174
+npm run build                    # static build -> app/dist (relative paths; any static host)
+```
+
+Each step can also be run on its own:
+
+| Command | What it does |
+|---|---|
+| `fetch` | Eurostat bulk snapshots into `data/raw/`, with a manifest carrying sha256 and licence |
+| `audit` | M0 source report |
+| `curate` | Parquet warehouse in `data/curated/` |
+| `qa` | Data-contract checks and the reconstruction gate; fails the run on hard errors |
+| `fetch-extra` | Flash history, Oil Bulletin, Brent, ECB |
+| `forecast` | Rolling-origin backtest, benchmarks and live forecast |
+| `export` | Site data in `app/public/data/`, which is committed so the site builds without the pipeline |
+
+The site data is committed, so `cd app && npm run build` works on a fresh clone. A full rebuild from the raw snapshots reproduces the forecasts and scores exactly.
+
+## How it works
+
+```text
+Eurostat (HICP monthly + weights + first releases, HBS)  ·  Oil Bulletin  ·  EIA Brent  ·  ECB (EUR/USD, staff projections)
+        │ immutable snapshots keyed by source version / content hash, licence recorded per file
+        ▼
+Python pipeline (uv, Polars, Parquet, statsmodels, scikit-learn)
+  curate ─► QA gate (reconstruction of the official HICP) ─► contributions ─► income-group indices ─► forecasts
+        │ compact JSON (≈6 MB)
+        ▼
+Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — basket maths runs in the browser
+```
+
+- **Index maths:** fixed-base and December-linked chained baskets; the standard contribution decomposition for chain indices; HBS shares with imputed rent removed, bridged from COICOP 1999 to ECOICOP ver. 2 and price-updated to every December.
+- **Forecasting:**
+  - Targets are the cumulative log change over 1–6 months, scored as annual-rate errors in percentage points.
+  - Information is cut at the 15th of the month after the origin, and a test proves later data cannot leak in.
+  - Models: simple rules, per-series SARIMA, and pooled ridge and gradient boosting (scikit-learn) learning deviations from the seasonal pattern.
+  - Intervals are the spread of each model's own realised errors.
+- **Quality:** 27 pipeline tests, 11 browser-maths tests and 20 Playwright smoke tests (desktop and phone: every page renders real charts with no console errors and no horizontal scroll; basket privacy; validation). CI and a monthly refresh workflow are in `.github/workflows/`. The refresh opens a pull request; nothing deploys automatically.
 
 ## Scientific boundaries
 
-- Price indices track *relative price change*, not a directly observed current euro cost of every item in a household's cart.
-- **HICP excludes owner-occupied housing costs and mortgage interest.** Housing (division 04) covers actual rents, maintenance, water and household energy. A homeowner's "housing spending" is not what the HICP measures.
-- Different baskets produce custom comparisons, **not official inflation statistics**.
-- Item weights change across years. A fixed basket and an annually reweighted, chain-linked official index answer different questions; do not equate their methodologies.
-- Income-quintile weights are survey averages for a group, not any real household.
-- Forecasted inflation does not establish its causes. SHAP or feature importance describe predictive associations, not causal contributions.
-- A hypothetical energy-price shock is a scenario, not a verified policy counterfactual.
+- **What price indices measure:** relative price change, not the euro cost of living. **The HICP excludes owner-occupied housing and mortgage interest;** the site says so wherever housing spending is entered.
+- **Baskets are calculations, not statistics:** custom and income-group baskets are not official, and income-group shares are averages for large groups, not real households.
+- **Forecasts:** they predict, they don't explain causes. History uses the current data vintage (the HICP is rarely revised), so backtests are pseudo-real-time.
+- **Scenarios:** they are assumptions, not forecasts or policy counterfactuals.
 
-## Proposed technical stack
+## Data and attribution
 
-**Static-first.** HICP updates once a month, so the pipeline exports compact versioned JSON/Parquet and a static site reads them. A server is added only when a feature needs on-demand compute.
+- **Eurostat** (`prc_hicp_minr`, `prc_hicp_iw`, `prc_hicp_fpd`, `prc_hicp_fp`, `hbs_str_t223`): reused under the Eurostat copyright notice (CC BY 4.0). Data were transformed by PriceLens; Eurostat bears no responsibility for the results.
+- **European Commission Weekly Oil Bulletin:** CC BY 4.0.
+- **U.S. Energy Information Administration Brent spot price:** public domain.
+- **ECB statistics:** EUR/USD reference rate and Eurosystem/ECB staff projections, shown unmodified.
+- **Map boundaries:** Natural Earth (public domain).
 
-- **Pipeline:** Python 3.12, uv, Polars + DuckDB, Parquet, Pydantic, pytest, ruff. Direct Eurostat API requests, with raw snapshots and a source manifest.
-- **Models:** statsmodels (ETS/SARIMA), scikit-learn (Ridge/ElasticNet), LightGBM; empirical or conformal intervals; a simple run ledger instead of MLflow.
-- **Frontend:** Vite + React + TypeScript, Tailwind v4, Base UI, Observable Plot + D3, DuckDB-WASM for in-browser basket and quintile computations.
-- **Delivery:** GitHub Actions (CI, plus a monthly refresh after each Eurostat release) and static hosting.
 
-## Roadmap
-
-| Milestone | Outcome |
-|---|---|
-| M0 | Source, weights, classification and licence feasibility audit |
-| M1 | Versioned EU27 + euro-area inflation warehouse, with official-HICP reconstruction QA |
-| M2 | Polished Inflation Atlas — first MVP |
-| M3 | Basket Studio + Quintile Lab + scenarios, with verified index math |
-| M4 | Forecast Lab with robust backtests and official benchmarks |
-| M5 | Hardening: CI, monthly refresh, docs, release |
-| M6–M8 | Advanced/hierarchical ML, tool-grounded LLM analyst, optional US extension |
+## Documents
 
 See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for the data contract.
-
-## Installation and demo status
-
-**M0 (source audit), M1 (warehouse), M2 (Inflation Atlas) M3 (Basket Studio + income groups) and M4 (Forecast Lab) complete.** Nothing is deployed. What works:
-
-```bash
-uv sync                      # Python 3.12 environment
-uv run pricelens fetch       # Eurostat bulk snapshots -> data/raw/ (+ manifest with sha256 and licence)
-uv run pricelens audit       # M0 coverage / flags / weights / HBS report -> reports/m0_source_audit.md
-uv run pricelens curate      # normalized Parquet tables -> data/curated/
-uv run pricelens qa          # data-contract checks + official-HICP reconstruction -> reports/m1_qa.md
-uv run pricelens fetch-extra # first releases (flash), Oil Bulletin, EIA Brent, ECB EUR/USD + staff projections
-uv run pricelens forecast    # rolling-origin backtest + benchmarks + live forecast -> reports/m4_forecast.md
-uv run pricelens export      # compact JSON for the site -> app/public/data (committed)
-uv run pytest                # unit tests (connector, chain-linking, contributions, HBS bridge)
-
-cd app && npm install && npm run dev     # the site at http://127.0.0.1:5174
-npm test                                 # browser basket maths: hand-worked fixtures + official reconstruction
-npm run build                            # static build -> app/dist
-```
-
-The Atlas covers the 27 EU countries, the euro area and the EU. It has:
-- the headline rate, with the flash estimate when one exists;
-- contributions of energy, food, goods and services;
-- a 3-year category heatstrip;
-- a country ranking and a map;
-- 13-category small multiples against the euro area.
-
-Light and dark themes, phone layouts and table views are included.
-
-**Basket Studio** builds a custom basket from your spending shares or monthly euro amounts, in the browser only.
-- It has two methods: re-weighted yearly (chained) and fixed basket.
-- It compares the basket's level and annual rate with the official index, and shows contributions since the start month.
-- A 12-month hypothetical scenario lets you set an assumed rate per category.
-- The maths is tested against a hand-worked fixture shared with the Python reference. With official weights, it reproduces the published HICP for DE, FR, ES and the euro area.
-
-**Income groups** shows inflation for each fifth of households by income in 25 countries.
-- It uses Household Budget Survey 2015/2020 spending shares, with imputed rent removed, price-updated and chained like the HICP.
-- It shows the gap between the lowest and highest income fifths, which categories drive it, and a ranking across the EU.
-
-**Forecast Lab** forecasts annual inflation 1–6 months ahead for the euro area, DE, FR, IT and ES, covering the headline and the energy, food, goods and services components. Full numbers are in [`reports/m4_forecast.md`](reports/m4_forecast.md). On the frozen 2020+ test period:
-- **It beats every simple rule.** Pooled ridge errs by 0.77 pp one month ahead, against 0.94 pp for the best rule (the 3-year seasonal mean); three months ahead it is 1.73 against 2.04 pp.
-- **It does not beat the official numbers.** Eurostat's flash estimate, published two weeks later, errs by 0.05 pp on the headline against our 0.31. ECB staff projections are also more accurate at quarterly horizons.
-- **Its ranges are too narrow in shocks:** the 80% ranges contained about 55% of outcomes in 2022–23.
-- **Method:** settings were chosen on 2012–2019 forecasts only, and every forecast uses only information available on the 15th of the following month.
-
-The official all-items HICP is reproduced from published division indices and weights within a 95th-percentile annual-rate gap of 0.014–0.031 pp for 28 of 29 geos. Italy is a documented exception; see [`reports/m1_qa.md`](reports/m1_qa.md).
-
-
-## Data attribution
-
-Source: Eurostat (HICP, Household Budget Survey). PriceLens transforms and recombines these data; Eurostat bears no responsibility for the results. Map boundaries use public-domain or permissively licensed data (Natural Earth / world-atlas), not GISCO.
-
-## What a finished portfolio release demonstrates
-
-A technically defensible economic dataset and data lineage; correct basket index math validated by reconstructing the official index; official distributional inflation; no-lookahead forecasting measured against professional forecasts; uncertainty and explanation; a polished visual product; automated tests and monthly refresh; transparent assumptions and limitations. The project's ambition is high, but each milestone should stand alone.

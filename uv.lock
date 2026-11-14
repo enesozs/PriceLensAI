@@ -351,6 +351,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "statsmodels" },
+    { name = "threadpoolctl" },
 ]
 
 [package.dev-dependencies]
@@ -369,6 +370,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
     { name = "statsmodels", specifier = ">=0.15.0" },
+    { name = "threadpoolctl", specifier = ">=3.8.0" },
 ]
 
 [package.metadata.requires-dev]

@@ -7,6 +7,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./",
   plugins: [react(), tailwindcss()],
-  resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
+  resolve: { alias: { "@": path.resolve(import.meta.dirname, "./src") } },
   server: { port: 5174, host: "127.0.0.1" },
+  // The main chunk is mostly Observable Plot + d3 (~185 kB gzipped), needed by the landing page;
+  // secondary pages and the map geometry are split into their own chunks.
+  build: { chunkSizeWarningLimit: 650 },
 });

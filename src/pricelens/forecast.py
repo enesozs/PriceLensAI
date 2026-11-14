@@ -39,6 +39,7 @@ TEST_FROM = date(2020, 1, 1)
 BACKTEST_FROM = date(2010, 1, 1)  # 2010-2011 origins only warm up the interval calibration
 INTERVAL_WINDOW = 60  # realised errors used for empirical intervals
 SEED = 7
+GBM_THREADS = 2
 
 
 # ------------------------------------------------------------------------------------------------ data
@@ -120,7 +121,12 @@ def exog_features() -> pl.DataFrame:
         zero=pl.col("p").log() - pl.col("p").shift(1).over("geo", "product").log(),
     )
     fw = f.pivot(on="product", index=["geo", "month"], values=["one", "zero"])
-    names = {"one_motor": "f_fuel_1", "zero_motor": "f_fuel_0", "one_heat": "f_heat_1", "zero_heat": "f_heat_0"}
+    names = {
+        "one_motor": "f_fuel_1",
+        "zero_motor": "f_fuel_0",
+        "one_heat": "f_heat_1",
+        "zero_heat": "f_heat_0",
+    }
     fw = fw.with_columns([pl.lit(None, dtype=pl.Float64).alias(c) for c in names if c not in fw.columns])
     fw = fw.rename(names)
     fw = fw.rename({"month": "date"})
@@ -236,24 +242,37 @@ def fit(kind: str, train: pl.DataFrame, h: int, params: dict) -> Fitted:
         return Fitted(kind, m, mu, sd)
     if kind == "gbm":
         # scikit-learn's histogram gradient boosting (LightGBM-style); LightGBM itself needs a system OpenMP library
-        from sklearn.ensemble import HistGradientBoostingRegressor
+
+        from threadpoolctl import threadpool_limits
 
         X = lgbm_matrix(train, h)
         n = X.shape[1]
-        m = HistGradientBoostingRegressor(
-            max_iter=params["max_iter"],
-            learning_rate=params["learning_rate"],
-            max_leaf_nodes=params["max_leaf_nodes"],
-            min_samples_leaf=params["min_samples_leaf"],
-            l2_regularization=1.0,
-            categorical_features=[n - 3, n - 2],
-            random_state=SEED,
-        ).fit(X, y)
+        with threadpool_limits(limits=GBM_THREADS):  # default OpenMP threading oversubscribes (~3x slower)
+            m = _hgb(params, n, X, y)
         return Fitted(kind, m)
     raise ValueError(kind)
 
 
+def _hgb(params: dict, n: int, X: np.ndarray, y: np.ndarray):
+    from sklearn.ensemble import HistGradientBoostingRegressor
+
+    return HistGradientBoostingRegressor(
+        max_iter=params["max_iter"],
+        learning_rate=params["learning_rate"],
+        max_leaf_nodes=params["max_leaf_nodes"],
+        min_samples_leaf=params["min_samples_leaf"],
+        l2_regularization=1.0,
+        categorical_features=[n - 3, n - 2],
+        random_state=SEED,
+    ).fit(X, y)
+
+
 def predict(f: Fitted, df: pl.DataFrame, h: int) -> np.ndarray:
+    if f.kind == "gbm":
+        from threadpoolctl import threadpool_limits
+
+        with threadpool_limits(limits=GBM_THREADS):
+            return df[f"sm{h}"].to_numpy() + f.obj.predict(lgbm_matrix(df, h))  # type: ignore[attr-defined]
     sm = df[f"sm{h}"].to_numpy()
     if f.kind == "ridge":
         X, _ = design(df, h)

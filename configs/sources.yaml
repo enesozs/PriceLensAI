@@ -1,0 +1,28 @@
+# PriceLens source configuration. Eurostat data are reused under the Eurostat copyright notice
+# (CC BY 4.0, source acknowledged). Every source needs a licence check before it is added.
+
+eurostat:
+  base_url: https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1
+  licence: eurostat-reuse-cc-by-4.0
+  attribution: "Source: Eurostat"
+  datasets:
+    hicp_monthly:
+      id: PRC_HICP_MINR        # ECOICOP ver.2, indices + rates, monthly
+      grain: [freq, unit, coicop18, geo, time]
+    hicp_weights:
+      id: PRC_HICP_IW          # ECOICOP ver.2, item weights per 1000, annual
+      grain: [freq, coicop18, statinfo, geo, time]
+    hbs_quintile:
+      id: HBS_STR_T223         # HBS expenditure structure by income quintile, COICOP 1999, per 1000
+      grain: [freq, quant_inc, coicop, unit, geo, time]
+
+# Warehouse coverage: EU27 + euro area + EU aggregate.
+geos:
+  aggregates: [EA, EU27_2020]
+  countries: [BE, BG, CZ, DK, DE, EE, IE, EL, ES, FR, HR, IT, CY, LV, LT, LU, HU, MT, NL, AT, PL, PT, RO, SI, SK, FI, SE]
+
+# Units kept from PRC_HICP_MINR.
+hicp_units: [I25, I15, RCH_M, RCH_A]
+
+# Forecast scope: the euro area and its four largest economies (full history since 1996, flash estimates available).
+forecast_geos: [EA, DE, FR, IT, ES]

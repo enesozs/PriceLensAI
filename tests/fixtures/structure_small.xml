@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><m:Structure xmlns:m="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:s="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:c="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"><m:Structures>
+<s:Dataflows><s:Dataflow id="PRC_HICP_MINR" agencyID="ESTAT" version="1.0"><c:Annotations>
+<c:Annotation><c:AnnotationTitle>2026-01-27T09:31:20+0100</c:AnnotationTitle><c:AnnotationType>CREATED</c:AnnotationType></c:Annotation>
+<c:Annotation><c:AnnotationTitle>2026-11-04T11:00:00+0100</c:AnnotationTitle><c:AnnotationType>DISSEMINATION_TIMESTAMP_DATA</c:AnnotationType></c:Annotation>
+</c:Annotations></s:Dataflow></s:Dataflows>
+<s:Codelists>
+<s:Codelist id="UNIT" agencyID="ESTAT" version="1.0"><s:Code id="I25"><c:Name xml:lang="de">Index, 2025=100</c:Name><c:Name xml:lang="en">Index, 2025=100</c:Name></s:Code><s:Code id="RCH_A"><c:Name xml:lang="en">Annual rate of change</c:Name></s:Code></s:Codelist>
+<s:Codelist id="COICOP18" agencyID="ESTAT" version="1.0"><s:Code id="TOTAL"><c:Name xml:lang="en">Total</c:Name></s:Code><s:Code id="CP04"><c:Name xml:lang="en">Housing, water, electricity, gas and other fuels</c:Name></s:Code></s:Codelist>
+</s:Codelists>
+<s:DataStructures><s:DataStructure id="PRC_HICP_MINR"><s:DataStructureComponents><s:DimensionList>
+<s:Dimension id="geo" position="4"/><s:Dimension id="freq" position="1"/><s:Dimension id="unit" position="2"/><s:Dimension id="coicop18" position="3"/>
+</s:DimensionList></s:DataStructureComponents></s:DataStructure></s:DataStructures>
+</m:Structures></m:Structure>

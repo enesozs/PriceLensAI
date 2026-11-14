@@ -1,7 +1,7 @@
 # PriceLens AI
 ### Inflation, purchasing-power, and cost-of-living intelligence
 
-**Status: M2 complete — the Inflation Atlas runs locally as a static site (not deployed).** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
+**Status: M3 complete — Atlas, Basket Studio and income-group inflation run locally as a static site (not deployed).** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
 
 > **Core idea:** Inflation is reported as one headline percentage, but people buy different things. PriceLens helps users explore category-level price movements and understand how different spending weights — official income-quintile weights or a user's own illustrative basket — change the inflation that basket experiences.
 
@@ -70,7 +70,7 @@ See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for the data contract.
 
 ## Installation and demo status
 
-**M0 (source audit), M1 (warehouse) and M2 (Inflation Atlas) complete.** Nothing is deployed. What works:
+**M0 (source audit), M1 (warehouse), M2 (Inflation Atlas) and M3 (Basket Studio + income groups) complete.** Nothing is deployed. What works:
 
 ```bash
 uv sync                      # Python 3.12 environment
@@ -82,6 +82,7 @@ uv run pricelens export      # compact JSON for the site -> app/public/data (com
 uv run pytest                # unit tests (connector, chain-linking, contributions, HBS bridge)
 
 cd app && npm install && npm run dev     # the site at http://127.0.0.1:5174
+npm test                                 # browser basket maths: hand-worked fixtures + official reconstruction
 npm run build                            # static build -> app/dist
 ```
 
@@ -93,6 +94,16 @@ The Atlas covers the 27 EU countries, the euro area and the EU. It has:
 - 13-category small multiples against the euro area.
 
 Light and dark themes, phone layouts and table views are included.
+
+**Basket Studio** builds a custom basket from your spending shares or monthly euro amounts, in the browser only.
+- It has two methods: re-weighted yearly (chained) and fixed basket.
+- It compares the basket's level and annual rate with the official index, and shows contributions since the start month.
+- A 12-month hypothetical scenario lets you set an assumed rate per category.
+- The maths is tested against a hand-worked fixture shared with the Python reference. With official weights, it reproduces the published HICP for DE, FR, ES and the euro area.
+
+**Income groups** shows inflation for each fifth of households by income in 25 countries.
+- It uses Household Budget Survey 2015/2020 spending shares, with imputed rent removed, price-updated and chained like the HICP.
+- It shows the gap between the lowest and highest income fifths, which categories drive it, and a ranking across the EU.
 
 The official all-items HICP is reproduced from published division indices and weights within a 95th-percentile annual-rate gap of 0.014–0.031 pp for 28 of 29 geos. Italy is a documented exception; see [`reports/m1_qa.md`](reports/m1_qa.md).
 

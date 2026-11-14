@@ -223,4 +223,7 @@ def export(out: Path = EXPORT) -> dict[str, int]:
             "attribution": ATTRIBUTION,
         },
     )
+    from pricelens.quintile import export_quintiles
+
+    sizes.update(export_quintiles(out))
     return sizes

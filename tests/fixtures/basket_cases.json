@@ -1,0 +1,34 @@
+{
+  "_doc": "Hand-worked basket cases shared by tests/test_basket.py (Python reference) and app/src/lib/basket.test.ts (browser implementation). Months are contiguous from 2024-12 (index 0) to 2026-01 (index 13); null = not needed.",
+  "months": ["2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01"],
+  "index": {
+    "A": [100, 110, null, null, null, null, null, null, null, null, null, null, 121, 121],
+    "B": [100, 100, null, null, null, null, null, null, null, null, null, null, 100, 100],
+    "C": [200, 190, null, null, null, null, null, null, null, null, null, null, 180, 171]
+  },
+  "shares": {"A": 0.5, "B": 0.3, "C": 0.2},
+  "base": "2024-12",
+  "expected": {
+    "fixed": {
+      "2024-12": 100.0,
+      "2025-01": 104.0,
+      "2025-12": 108.5,
+      "2026-01": 107.6,
+      "_working": "Jan-25: .5*110/100 + .3*100/100 + .2*190/200 = .55+.30+.19 = 1.04; Dec-25: .605+.30+.18 = 1.085; Jan-26: .605+.30+.2*171/200 = .605+.30+.171 = 1.076"
+    },
+    "chained": {
+      "2024-12": 100.0,
+      "2025-01": 104.0,
+      "2025-12": 108.5,
+      "2026-01": 107.415,
+      "_working": "Shares re-applied each December. Jan-26 link vs Dec-25: .5*121/121 + .3*100/100 + .2*171/180 = .5+.3+.19 = 0.99; 108.5*0.99 = 107.415"
+    },
+    "yoy_2026_01": {"fixed": 3.4615384615, "chained": 3.2836538462},
+    "contrib_since_base_2026_01": {
+      "A": 10.5,
+      "B": 0.0,
+      "C": -2.9,
+      "_working": "fixed-base: 100*w_i*(I_t/I_b - 1): A .5*.21=.105 -> 10.5 pp; C .2*(171/200-1)=-.029 -> -2.9 pp; total 7.6 = 107.6-100"
+    }
+  }
+}

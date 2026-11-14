@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import { Shell } from "@/components/shell";
 import { type Meta, type Rates, useJson } from "@/lib/data";
 import { AtlasPage } from "@/pages/atlas";
+import { BasketPage } from "@/pages/basket";
+import { QuintilesPage } from "@/pages/quintiles";
 import { MethodPage } from "@/pages/method";
 
 function Placeholder({ title, milestone }: { title: string; milestone: string }) {
@@ -22,8 +24,8 @@ export function App() {
       {meta && rates ? (
         <Routes>
           <Route path="/" element={<AtlasPage meta={meta} rates={rates} />} />
-          <Route path="/basket" element={<Placeholder title="Basket Studio" milestone="M3" />} />
-          <Route path="/quintiles" element={<Placeholder title="Inflation by income group" milestone="M3" />} />
+          <Route path="/basket" element={<BasketPage meta={meta} />} />
+          <Route path="/quintiles" element={<QuintilesPage meta={meta} />} />
           <Route path="/forecasts" element={<Placeholder title="Forecast Lab" milestone="M4" />} />
           <Route path="/method" element={<MethodPage meta={meta} />} />
         </Routes>

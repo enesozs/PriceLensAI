@@ -24,6 +24,11 @@
   --div-hi2: #e34948;
   --div-hi: #8f1d1c;
   --highlight: #161615;
+  --q1: #104281;
+  --q2: #1c5cab;
+  --q3: #2a78d6;
+  --q4: #5598e7;
+  --q5: #86b6ef;
   --badge-official: #e6efe9;
   --badge-official-ink: #1d5b3c;
   --badge-flash: #fbeedb;
@@ -54,6 +59,16 @@
     --div-hi2: #c23b3a;
     --div-hi: #f08f8e;
     --highlight: #f0efec;
+  --q1: #cde2fb;
+  --q2: #9ec5f4;
+  --q3: #6da7ec;
+  --q4: #3987e5;
+  --q5: #1c5cab;
+    --q1: #cde2fb;
+    --q2: #9ec5f4;
+    --q3: #6da7ec;
+    --q4: #3987e5;
+    --q5: #1c5cab;
     --badge-official: #1d3327;
     --badge-official-ink: #9fd9b7;
     --badge-flash: #3a2c14;

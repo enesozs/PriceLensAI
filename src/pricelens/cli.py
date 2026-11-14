@@ -27,6 +27,19 @@ def cmd_fetch_extra(args: argparse.Namespace) -> None:
         print(f"{ds:16s} version={e.source_version} bytes={e.bytes:,}")
     for s in fetch_all():
         print(f"{s.source:12s} {s.name:28s} bytes={s.bytes:,} sha256={s.sha256[:12]}")
+    from pricelens.sources import bls
+
+    for b in bls.fetch():  # US CPI (M8), keyless API v1, 3 queries
+        print(f"bls          {b['block']}")
+
+
+def cmd_us(args: argparse.Namespace) -> None:
+    from pricelens.us import build
+
+    r = build()
+    print(
+        f"US CPI to {r['latest']}; missing months {r['missing']}; contribution residual p95 {r['p95_abs_residual_pp']} pp"
+    )
 
 
 def cmd_forecast(args: argparse.Namespace) -> None:
@@ -115,6 +128,8 @@ def main(argv: list[str] | None = None) -> None:
     e.set_defaults(func=cmd_export)
     ad = sub.add_parser("advanced", help="M6 experiments: ablations, hierarchical headline, intervals")
     ad.set_defaults(func=cmd_advanced)
+    us = sub.add_parser("us", help="M8 United States view from BLS CPI-U (separate from HICP)")
+    us.set_defaults(func=cmd_us)
     al = sub.add_parser("all", help="full refresh: fetch, fetch-extra, curate, qa (gate), forecast, export")
     al.set_defaults(func=cmd_all)
     args = p.parse_args(argv)

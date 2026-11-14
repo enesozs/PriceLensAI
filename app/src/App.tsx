@@ -8,6 +8,7 @@ import { AtlasPage } from "@/pages/atlas";
 const BasketPage = lazy(() => import("@/pages/basket").then((m) => ({ default: m.BasketPage })));
 const QuintilesPage = lazy(() => import("@/pages/quintiles").then((m) => ({ default: m.QuintilesPage })));
 const ForecastsPage = lazy(() => import("@/pages/forecasts").then((m) => ({ default: m.ForecastsPage })));
+const USPage = lazy(() => import("@/pages/us").then((m) => ({ default: m.USPage })));
 const MethodPage = lazy(() => import("@/pages/method").then((m) => ({ default: m.MethodPage })));
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
           <Route path="/basket" element={<BasketPage meta={meta} />} />
           <Route path="/quintiles" element={<QuintilesPage meta={meta} />} />
           <Route path="/forecasts" element={<ForecastsPage meta={meta} rates={rates} />} />
+          <Route path="/us" element={<USPage />} />
           <Route path="/method" element={<MethodPage meta={meta} />} />
         </Routes>
         </Suspense>

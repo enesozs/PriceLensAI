@@ -1,7 +1,7 @@
 # PriceLens AI
 ### What is getting more expensive, for whom, where — and what comes next
 
-**Status: M0–M6 complete. The site runs locally as a static build; it is not deployed.**
+**Status: M0–M6 and M8 complete. The site runs locally as a static build; it is not deployed.**
 
 Inflation is reported as one headline number, but people buy different things. PriceLens is built on official Eurostat statistics. It shows:
 - which categories drive inflation in each EU country;
@@ -27,6 +27,7 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
   - 13-category small multiples.
 - **Basket Studio.** Enter spending shares or monthly euro amounts, either re-weighted yearly like the official index or as a fixed basket. Compare the price level and annual rate with the official index, see contributions since a start month, and run a labelled 12-month hypothetical scenario. Nothing you enter leaves the browser.
 - **Income groups.** Inflation for each fifth of households by income in 25 countries, from Household Budget Survey spending shares (2015 and 2020 waves). It shows the gap between the lowest and highest income fifths and which categories drive it.
+- **United States.** BLS CPI-U on its own page, never mixed with the HICP. It shows contributions of energy, food, core goods and core services (with derived December weights), the eight major groups, and a side-by-side view with the euro area that explains the housing difference.
 - **Forecast Lab.** 1–6-month forecasts of the annual rate for the euro area, DE, FR, IT and ES (headline plus four components). It includes an out-of-sample track record, a model scoreboard, benchmarks and interval calibration.
 
 ## Key results
@@ -52,7 +53,7 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
 
 ```bash
 uv sync                          # Python 3.12 environment
-uv run pricelens all             # fetch -> fetch-extra -> curate -> qa (gate) -> forecast -> advanced -> export   (~8 min from scratch)
+uv run pricelens all             # fetch -> fetch-extra -> curate -> qa (gate) -> forecast -> advanced -> us -> export   (~8 min from scratch)
 make test                        # ruff + pytest, then tsc, oxlint, vitest, build, Playwright smoke tests
 
 cd app && npm install
@@ -71,6 +72,7 @@ Each step can also be run on its own:
 | `fetch-extra` | Flash history, Oil Bulletin, Brent, ECB |
 | `forecast` | Rolling-origin backtest, benchmarks and live forecast |
 | `advanced` | M6 ablations, hierarchical headline and interval experiments |
+| `us` | M8 US view from BLS CPI-U |
 | `export` | Site data in `app/public/data/`, which is committed so the site builds without the pipeline |
 
 The site data is committed, so `cd app && npm run build` works on a fresh clone. A full rebuild from the raw snapshots reproduces the forecasts and scores exactly.
@@ -94,7 +96,7 @@ Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — bask
   - Information is cut at the 15th of the month after the origin, and a test proves later data cannot leak in.
   - Models: simple rules, per-series SARIMA, and pooled ridge and gradient boosting (scikit-learn) learning deviations from the seasonal pattern.
   - Intervals are the spread of each model's own realised errors.
-- **Quality:** 28 pipeline tests, 11 browser-maths tests and 20 Playwright smoke tests (desktop and phone: every page renders real charts with no console errors and no horizontal scroll; basket privacy; validation). CI and a monthly refresh workflow are in `.github/workflows/`. The refresh opens a pull request; nothing deploys automatically.
+- **Quality:** 29 pipeline tests, 11 browser-maths tests and 22 Playwright smoke tests (desktop and phone: every page renders real charts with no console errors and no horizontal scroll; basket privacy; validation). CI and a monthly refresh workflow are in `.github/workflows/`. The refresh opens a pull request; nothing deploys automatically.
 
 ## Scientific boundaries
 
@@ -108,6 +110,7 @@ Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — bask
 - **Eurostat** (`prc_hicp_minr`, `prc_hicp_iw`, `prc_hicp_fpd`, `prc_hicp_fp`, `hbs_str_t223`): reused under the Eurostat copyright notice (CC BY 4.0). Data were transformed by PriceLens; Eurostat bears no responsibility for the results.
 - **European Commission Weekly Oil Bulletin:** CC BY 4.0.
 - **U.S. Energy Information Administration Brent spot price:** public domain.
+- **U.S. Bureau of Labor Statistics CPI-U:** public domain.
 - **ECB statistics:** EUR/USD reference rate and Eurosystem/ECB staff projections, shown unmodified.
 - **Map boundaries:** Natural Earth (public domain).
 

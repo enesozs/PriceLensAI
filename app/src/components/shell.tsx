@@ -8,6 +8,7 @@ const NAV = [
   { to: "/basket", label: "Basket" },
   { to: "/quintiles", label: "Income groups" },
   { to: "/forecasts", label: "Forecasts" },
+  { to: "/us", label: "United States" },
   { to: "/method", label: "Method & sources" },
 ];
 
@@ -64,7 +65,7 @@ export function Shell({ meta, children }: { meta: Meta | null; children: ReactNo
       <main className="mx-auto max-w-6xl px-4 sm:px-6">{children}</main>
       <footer className="mt-10 border-t border-rule">
         <div className="mx-auto max-w-6xl px-4 py-8 text-xs leading-relaxed text-muted sm:px-6">
-          <p>{meta?.attribution}</p>
+          <p>{meta?.attribution} United States page: U.S. Bureau of Labor Statistics (public domain).</p>
           {meta && (
             <p className="mt-1">
               HICP data to {monthLabel(meta.latest_month, true)}

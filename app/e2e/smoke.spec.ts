@@ -6,6 +6,7 @@ const PAGES = [
   { path: "/#/basket", heading: /Your basket, official prices/ },
   { path: "/#/quintiles", heading: /lowest-income fifth/ },
   { path: "/#/forecasts", heading: /Where inflation in the euro area is heading/ },
+  { path: "/#/us", heading: /Prices in the United States were/ },
   { path: "/#/method", heading: /Method & sources/ },
 ];
 

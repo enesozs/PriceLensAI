@@ -58,6 +58,7 @@ export function ForecastsPage({ meta, rates }: { meta: Meta; rates: Rates }) {
       <Scoreboard fd={fd} />
       <Benchmarks meta={meta} fd={fd} />
       <Calibration fd={fd} />
+      <Experiments />
       <section className="border-t border-rule pt-6 pb-4 text-sm leading-relaxed text-ink-2">
         <h2 className="mb-2 font-serif text-xl text-ink">How these forecasts are made and tested</h2>
         <ul className="max-w-3xl list-disc space-y-1.5 pl-5">
@@ -71,7 +72,7 @@ export function ForecastsPage({ meta, rates }: { meta: Meta; rates: Rates }) {
             change of the last three years.
           </li>
           <li>
-            All settings were chosen on forecasts for {fd.meta.valid[0]}–{fd.meta.valid[1]}; the scores here are for forecasts from {fd.meta.test_from}
+            All settings were chosen on forecasts for {fd.meta.valid[0]}–{fd.meta.valid[1]}; the scores here are for forecasts from {fd.meta.test_from}{" "}
             onward, which were never used to choose anything. History is the current published data (the HICP is rarely revised).
           </li>
           <li>
@@ -375,3 +376,73 @@ function Calibration({ fd }: { fd: ForecastData }) {
   );
 }
 
+
+type Advanced = {
+  ablations: { model: string; split: string; h: number; group: string; mae: number; floor: number; gain_vs_floor_pct: number }[];
+  hierarchy: { validation: Record<string, number>; adopted: string; gain: number; materiality: number; table: Row[] };
+  intervals: { chosen: string; validation_winkler: Record<string, number>; table: { period: string; h: number; coverage80: number; winkler: number; method: string }[] };
+};
+
+function Experiments() {
+  const { data: ad } = useJson<Advanced>("advanced.json");
+  if (!ad) return null;
+  const abl = ad.ablations.filter((r) => r.split === "test" && r.h === 1);
+  const order = ["full", "no Brent or FX", "no pump prices (Oil Bulletin)", "no own price momentum", "no oil, fuel or FX"];
+  const iv = ad.intervals.table.filter((r) => r.h === 1 && !r.period.startsWith("2012"));
+  const shock = (m: string) => iv.find((r) => r.period.startsWith("2022") && r.method === m)?.coverage80 ?? 0;
+  return (
+    <>
+      <ChartCard
+        badges={["forecast"]}
+        title="What the forecasts rely on"
+        subtitle={<>How much better than the seasonal rule the model is when one family of inputs is removed, one month ahead, test period. Weekly pump prices carry the energy forecasts; for the other series the inputs matter less.</>}
+        footnote="Ablations of the pooled ridge model: the same model refitted without the named inputs, scored on forecasts from 2020 onward. Gain = 1 − error ÷ error of the 3-year seasonal mean."
+        table={<DataTable head={["Inputs", "Series", "MAE (pp)", "Gain vs seasonal rule"]} rows={abl.map((r) => [r.model, r.group, num(r.mae, 3), pct(r.gain_vs_floor_pct, 0)])} />}
+      >
+        <PlotFigure
+          label="Ablation gains"
+          deps={[abl.length]}
+          make={(width) => ({
+            width,
+            height: 260,
+            marginLeft: width < 600 ? 170 : 220,
+            marginRight: 50,
+            x: { label: "gain vs seasonal rule, %", grid: true },
+            y: { domain: order, label: null, tickSize: 0 },
+            fy: { label: null },
+            marks: [
+              Plot.gridX({ ...GRID }),
+              Plot.barX(abl, { x: "gain_vs_floor_pct", y: "model", fy: "group", fill: (r: (typeof abl)[number]) => (r.model === "full" ? "var(--c-neig)" : "var(--muted)"), insetTop: 2, insetBottom: 2, rx: 2 }),
+              Plot.ruleX([0], { stroke: "var(--ink-2)" }),
+              Plot.text(abl, { x: "gain_vs_floor_pct", y: "model", fy: "group", text: (r: (typeof abl)[number]) => pct(r.gain_vs_floor_pct, 0), textAnchor: "start", dx: 5, fill: "var(--ink-2)" }),
+            ],
+          })}
+        />
+      </ChartCard>
+      <section className="border-t border-rule pt-6 pb-10">
+        <div className="mb-1.5 flex gap-1.5">
+          <Badge type="forecast" />
+        </div>
+        <h2 className="font-serif text-2xl font-medium text-ink sm:text-[28px]">Two ideas that did not make the cut</h2>
+        <div className="mt-3 grid gap-6 text-[15px] leading-relaxed text-ink-2 md:grid-cols-2">
+          <div>
+            <h3 className="font-medium text-ink">Building the headline from its parts</h3>
+            <p className="mt-1">
+              Forecasting energy, food, goods and services separately and combining them with the official weights, then averaging with the direct headline
+              forecast, was {pct(100 * ad.hierarchy.gain, 1)} more accurate on 2012–2019. That is below the {pct(100 * ad.hierarchy.materiality, 0)} needed to justify
+              the extra complexity, so the direct forecast stays.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-medium text-ink">Ranges that widen in a crisis</h3>
+            <p className="mt-1">
+              Scaling the ranges by recent errors would have caught far more outcomes in the 2022–23 energy shock ({pct(100 * shock("adaptive"), 0)} inside the 80% range instead of{" "}
+              {pct(100 * shock("static"), 0)}). But it scored worse on the calm 2012–2019 period used for every decision, so it was not adopted. Changing the rule after seeing the
+              test period would make the test meaningless.
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

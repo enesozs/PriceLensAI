@@ -1,7 +1,7 @@
 # PriceLens AI
 ### What is getting more expensive, for whom, where — and what comes next
 
-**Status: M0–M5 complete. The site runs locally as a static build; it is not deployed.**
+**Status: M0–M6 complete. The site runs locally as a static build; it is not deployed.**
 
 Inflation is reported as one headline number, but people buy different things. PriceLens is built on official Eurostat statistics. It shows:
 - which categories drive inflation in each EU country;
@@ -43,12 +43,16 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
   - The chosen model, pooled ridge (picked on 2012–2019 forecasts only), errs by 0.77 pp one month ahead against 0.94 pp for the best simple rule, and by 1.73 against 2.04 pp three months ahead.
   - Eurostat's flash estimate, published two weeks after our forecast, errs by just 0.05 pp on the headline. ECB staff projections are also more accurate.
   - The ranges were too narrow in the 2020–23 shocks: 55–61% of outcomes fell inside the 80% range one month ahead.
+- **What drives the forecasts, and what was rejected** ([`reports/m6_advanced.md`](reports/m6_advanced.md)):
+  - Weekly pump prices from the Oil Bulletin carry the energy forecasts. Without oil, fuel and FX inputs, energy's gain over the seasonal rule falls from 25% to 5%.
+  - Two ideas were rejected under the M6 rule (adopt only with at least a 5% validation gain): a bottom-up headline (1.7% gain) and crisis-adaptive ranges.
+  - The adaptive ranges would have helped in 2022–23 (74% coverage instead of 55%) but scored worse on the calm validation years.
 
 ## Run it
 
 ```bash
 uv sync                          # Python 3.12 environment
-uv run pricelens all             # fetch -> fetch-extra -> curate -> qa (gate) -> forecast -> export   (~8 min from scratch)
+uv run pricelens all             # fetch -> fetch-extra -> curate -> qa (gate) -> forecast -> advanced -> export   (~8 min from scratch)
 make test                        # ruff + pytest, then tsc, oxlint, vitest, build, Playwright smoke tests
 
 cd app && npm install
@@ -66,6 +70,7 @@ Each step can also be run on its own:
 | `qa` | Data-contract checks and the reconstruction gate; fails the run on hard errors |
 | `fetch-extra` | Flash history, Oil Bulletin, Brent, ECB |
 | `forecast` | Rolling-origin backtest, benchmarks and live forecast |
+| `advanced` | M6 ablations, hierarchical headline and interval experiments |
 | `export` | Site data in `app/public/data/`, which is committed so the site builds without the pipeline |
 
 The site data is committed, so `cd app && npm run build` works on a fresh clone. A full rebuild from the raw snapshots reproduces the forecasts and scores exactly.
@@ -89,7 +94,7 @@ Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — bask
   - Information is cut at the 15th of the month after the origin, and a test proves later data cannot leak in.
   - Models: simple rules, per-series SARIMA, and pooled ridge and gradient boosting (scikit-learn) learning deviations from the seasonal pattern.
   - Intervals are the spread of each model's own realised errors.
-- **Quality:** 27 pipeline tests, 11 browser-maths tests and 20 Playwright smoke tests (desktop and phone: every page renders real charts with no console errors and no horizontal scroll; basket privacy; validation). CI and a monthly refresh workflow are in `.github/workflows/`. The refresh opens a pull request; nothing deploys automatically.
+- **Quality:** 28 pipeline tests, 11 browser-maths tests and 20 Playwright smoke tests (desktop and phone: every page renders real charts with no console errors and no horizontal scroll; basket privacy; validation). CI and a monthly refresh workflow are in `.github/workflows/`. The refresh opens a pull request; nothing deploys automatically.
 
 ## Scientific boundaries
 

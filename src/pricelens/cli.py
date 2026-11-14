@@ -68,6 +68,12 @@ def cmd_export(args: argparse.Namespace) -> None:
     print(f"exported {len(sizes)} files, {sum(sizes.values()) / 1e6:.2f} MB")
 
 
+def cmd_advanced(args: argparse.Namespace) -> None:
+    from pricelens.advanced import run
+
+    print(run(), "-> reports/m6_advanced.md")
+
+
 def cmd_all(args: argparse.Namespace) -> None:
     """Full monthly refresh: sources -> warehouse -> QA gate -> forecasts -> site data."""
     import time
@@ -107,6 +113,8 @@ def main(argv: list[str] | None = None) -> None:
     q.set_defaults(func=cmd_qa)
     e = sub.add_parser("export", help="static JSON for the web app -> app/public/data")
     e.set_defaults(func=cmd_export)
+    ad = sub.add_parser("advanced", help="M6 experiments: ablations, hierarchical headline, intervals")
+    ad.set_defaults(func=cmd_advanced)
     al = sub.add_parser("all", help="full refresh: fetch, fetch-extra, curate, qa (gate), forecast, export")
     al.set_defaults(func=cmd_all)
     args = p.parse_args(argv)

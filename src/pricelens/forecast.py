@@ -191,8 +191,9 @@ def build_dataset(panel: pl.DataFrame, exog: pl.DataFrame) -> pl.DataFrame:
 # ------------------------------------------------------------------------------------------------ models
 
 
-def design(df: pl.DataFrame, h: int) -> tuple[np.ndarray, list[str]]:
-    """Feature matrix for the pooled linear model: own dynamics + exog x series-type interactions + calendar."""
+def design(df: pl.DataFrame, h: int, exclude: tuple[str, ...] = ()) -> tuple[np.ndarray, list[str]]:
+    """Feature matrix for the pooled linear model: own dynamics + exog x series-type interactions + calendar.
+    `exclude` drops feature families for ablations (M6)."""
     cols, mats = [], []
     base = ["sd0", "sd1", "sd2", "sd_3m", "sd_6m", "sd_12m", "yoy0"]
     target_month = (pl.col("origin").dt.month() + h - 1) % 12
@@ -204,7 +205,7 @@ def design(df: pl.DataFrame, h: int) -> tuple[np.ndarray, list[str]]:
         isc = (X["code"] == c).cast(pl.Float64).to_numpy()
         mats.append(isc[:, None])
         cols.append(f"is_{c}")
-        for f in base + EXOG + ["cal_s", "cal_c"]:
+        for f in [x for x in base + EXOG + ["cal_s", "cal_c"] if x not in exclude]:
             v = X[f].fill_null(0.0).to_numpy()
             mats.append((v * isc)[:, None])
             cols.append(f"{f}|{c}")
@@ -228,6 +229,7 @@ class Fitted:
     obj: object
     mu: np.ndarray | None = None
     sd: np.ndarray | None = None
+    exclude: tuple[str, ...] = ()
 
 
 def fit(kind: str, train: pl.DataFrame, h: int, params: dict) -> Fitted:
@@ -235,11 +237,12 @@ def fit(kind: str, train: pl.DataFrame, h: int, params: dict) -> Fitted:
     if kind == "ridge":
         from sklearn.linear_model import Ridge
 
-        X, _ = design(train, h)
+        exclude = tuple(params.get("exclude", ()))
+        X, _ = design(train, h, exclude)
         mu, sd = X.mean(0), X.std(0)
         sd[sd == 0] = 1
         m = Ridge(alpha=params["alpha"]).fit((X - mu) / sd, y)
-        return Fitted(kind, m, mu, sd)
+        return Fitted(kind, m, mu, sd, exclude)
     if kind == "gbm":
         # scikit-learn's histogram gradient boosting (LightGBM-style); LightGBM itself needs a system OpenMP library
 
@@ -275,7 +278,7 @@ def predict(f: Fitted, df: pl.DataFrame, h: int) -> np.ndarray:
             return df[f"sm{h}"].to_numpy() + f.obj.predict(lgbm_matrix(df, h))  # type: ignore[attr-defined]
     sm = df[f"sm{h}"].to_numpy()
     if f.kind == "ridge":
-        X, _ = design(df, h)
+        X, _ = design(df, h, f.exclude)
         return sm + f.obj.predict((X - f.mu) / f.sd)  # type: ignore[attr-defined]
     return sm + f.obj.predict(lgbm_matrix(df, h))  # type: ignore[attr-defined]
 
@@ -389,8 +392,18 @@ def score(preds: pl.DataFrame, ds: pl.DataFrame) -> pl.DataFrame:
     ).with_columns(err=pl.col("yoy_pred") - pl.col("yoy_true"))
 
 
-def add_intervals(sc: pl.DataFrame) -> pl.DataFrame:
-    """Empirical intervals from each model's own realised errors (target month <= origin, last INTERVAL_WINDOW)."""
+ADAPTIVE_RECENT = 6  # recent realised errors that set the volatility scale
+ADAPTIVE_CLIP = (0.5, 3.0)
+
+
+def add_intervals(sc: pl.DataFrame, method: str = "static") -> pl.DataFrame:
+    """Empirical intervals from each model's own realised errors (target month <= origin, last INTERVAL_WINDOW).
+
+    static:   true value in [pred - q_hi(err), pred - q_lo(err)]
+    adaptive: the same error quantiles scaled by recent error size,
+              s = clip(mean|e| over the last ADAPTIVE_RECENT / mean|e| over the window, 0.5, 3), so ranges widen
+              quickly when a shock starts and narrow again when it fades (M6).
+    """
     out = []
     for _key, g in sc.group_by("model", "geo", "code", "h"):
         g = g.sort("origin")
@@ -407,10 +420,15 @@ def add_intervals(sc: pl.DataFrame) -> pl.DataFrame:
                     q[k].append(None)
                 continue
             a = np.array(past)
-            q["lo80"].append(float(np.quantile(a, 0.1)))
-            q["hi80"].append(float(np.quantile(a, 0.9)))
-            q["lo95"].append(float(np.quantile(a, 0.025)))
-            q["hi95"].append(float(np.quantile(a, 0.975)))
+            scale = 1.0
+            if method == "adaptive":
+                long = np.mean(np.abs(a))
+                recent = np.mean(np.abs(a[-ADAPTIVE_RECENT:]))
+                scale = float(np.clip(recent / long, *ADAPTIVE_CLIP)) if long > 0 else 1.0
+            q["lo80"].append(scale * float(np.quantile(a, 0.1)))
+            q["hi80"].append(scale * float(np.quantile(a, 0.9)))
+            q["lo95"].append(scale * float(np.quantile(a, 0.025)))
+            q["hi95"].append(scale * float(np.quantile(a, 0.975)))
         out.append(
             g.with_columns(
                 # interval for the true value = prediction - error quantiles
@@ -421,6 +439,12 @@ def add_intervals(sc: pl.DataFrame) -> pl.DataFrame:
             )
         )
     return pl.concat(out)
+
+
+def interval_score(df: pl.DataFrame, alpha: float = 0.2, lo: str = "lo80", hi: str = "hi80") -> pl.Expr:
+    """Winkler interval score (lower is better): width + 2/alpha * miss distance."""
+    y, l_, u = pl.col("yoy_true"), pl.col(lo), pl.col(hi)
+    return (u - l_) + (2 / alpha) * ((l_ - y).clip(lower_bound=0) + (y - u).clip(lower_bound=0))
 
 
 def mae(df: pl.DataFrame) -> float:
@@ -553,17 +577,17 @@ def cached(name: str, key: dict, compute) -> pl.DataFrame:
     return df
 
 
+def data_version(full: date, ds: pl.DataFrame, exog: pl.DataFrame) -> dict:
+    """Cache key for rolling predictions: changes whenever the data or the information set changes."""
+    exog_sum = float(exog.select(pl.sum_horizontal(pl.col("^f_.*$").fill_null(0).sum())).item())
+    return {"latest": str(full), "rows": ds.height, "exog_sum": exog_sum, "h": H, "cutoff": CUTOFF_DAY}
+
+
 def run(out_dir: Path = CURATED) -> dict:
     panel, full = load_panel()
     exog = exog_features()
     ds = build_dataset(panel, exog)
-    version = {
-        "latest": str(full),
-        "rows": ds.height,
-        "exog_sum": float(exog.select(pl.sum_horizontal(pl.col("^f_.*$").fill_null(0).sum())).item()),
-        "h": H,
-        "cutoff": CUTOFF_DAY,
-    }
+    version = data_version(full, ds, exog)
     all_origins = sorted(o for o in ds["origin"].unique().to_list() if o >= BACKTEST_FROM)
     valid_origins = [o for o in all_origins if VALID[0] <= o <= VALID[1]]
 
@@ -610,7 +634,23 @@ def run(out_dir: Path = CURATED) -> dict:
         .select(P.columns)
     )
     P = pl.concat([P, ens])
-    S = add_intervals(score(P, ds))
+    SC = score(P, ds)
+    # interval method chosen on validation only (mean Winkler score of the 80% range, h = 1 and 3)
+    interval_choice = {}
+    for method in ("static", "adaptive"):
+        Sm = add_intervals(SC, method)
+        vv = Sm.filter(
+            (pl.col("origin") >= VALID[0])
+            & (pl.col("origin") <= VALID[1])
+            & pl.col("h").is_in([1, 3])
+            & pl.col("lo80").is_not_null()
+            & pl.col("err").is_not_null()
+        )
+        interval_choice[method] = float(vv.select(interval_score(vv).mean()).item())
+    interval_method = min(interval_choice, key=interval_choice.get)
+    S = add_intervals(SC, interval_method)
+    S_alt = add_intervals(SC, "adaptive" if interval_method == "static" else "static")
+    S_alt.write_parquet(out_dir / "forecast_backtest_alt_intervals.parquet")
 
     # ---- model selection on validation only
     v = S.filter(
@@ -635,6 +675,8 @@ def run(out_dir: Path = CURATED) -> dict:
         "chosen_model": chosen,
         "tuning": {k: [{"params": p, "val_mae": round(m, 4)} for p, m in v_] for k, v_ in tuning.items()},
         "best_params": best,
+        "interval_method": interval_method,
+        "interval_validation_winkler": {k: round(v, 4) for k, v in interval_choice.items()},
         "latest_origin": full.isoformat(),
         "issued_as_of": date(month_add(full, 1).year, month_add(full, 1).month, CUTOFF_DAY).isoformat(),
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -788,6 +830,9 @@ def report(
         _md(t["by_regime"]),
         "",
         "### Interval calibration (empirical intervals from the model's own past errors)",
+        "",
+        f"Interval method chosen on validation (mean Winkler score of the 80% range, h = 1 and 3; lower is better): "
+        f"**{meta['interval_method']}** — {json.dumps(meta['interval_validation_winkler'])}.",
         "",
         _md(t["coverage"]),
         "",

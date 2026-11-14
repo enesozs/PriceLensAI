@@ -25,6 +25,22 @@ def cmd_audit(args: argparse.Namespace) -> None:
     print("wrote reports/m0_source_audit.md")
 
 
+def cmd_curate(args: argparse.Namespace) -> None:
+    from pricelens.curate import write_all
+
+    for name, n in write_all().items():
+        print(f"{name:14s} {n:>12,} rows")
+
+
+def cmd_qa(args: argparse.Namespace) -> None:
+    from pricelens.qa import run_qa
+
+    ok = run_qa()
+    print("wrote reports/m1_qa.md")
+    if not ok:
+        sys.exit("QA FAILED: see reports/m1_qa.md")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="pricelens")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -33,6 +49,10 @@ def main(argv: list[str] | None = None) -> None:
     f.set_defaults(func=cmd_fetch)
     a = sub.add_parser("audit", help="M0 source audit report from the latest snapshots")
     a.set_defaults(func=cmd_audit)
+    c = sub.add_parser("curate", help="raw snapshots -> data/curated/*.parquet")
+    c.set_defaults(func=cmd_curate)
+    q = sub.add_parser("qa", help="data-contract checks + official-HICP reconstruction gate")
+    q.set_defaults(func=cmd_qa)
     args = p.parse_args(argv)
     args.func(args)
 

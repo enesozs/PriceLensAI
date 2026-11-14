@@ -15,7 +15,10 @@
 
 **Quintile weights** (`hbs_str_t223`):
 - **Grain:** one observation per `(geo, income_quintile, coicop1999_code, survey_wave)`.
-- **Fields:** `share_per_1000`, the mapped `ecoicop_v2_code`, and the mapping method and confidence.
+- **Fields:** `share_per_1000` (raw). Mapped, curated table `hbs_quintile`: ver. 2 `division`, `share` (renormalized ex. imputed rent), `method` and diagnostics.
+- **Bridge:** `configs/hbs_to_ecoicop2.csv`. Start from the 12 division totals, then remove CP042 and apply moves and weight-proportional splits.
+  - Eurostat publishes no 4-digit CP091 detail, so the old CP091 part that moves to ver. 2 CP08 is split using the country's ver. 2 class weights (`bridge+cp091_fallback`).
+- **Usable geo-wave:** all required codes present, and the HBS division total within 1000 ± 6‰ (integer rounding). SE and IT are not usable.
 - **Flags:** note waves that were imputed or price-converted (for example the 2020 figures for CY, FR and MT) and countries with no data.
 
 **Mappings:**
@@ -56,7 +59,11 @@ Baskets are computed client-side, and user baskets are never persisted server-si
 - no accidental mixing of HICP and CPI;
 - byte-identical rebuilds from the same snapshot.
 
-**Reconstruction gate:** rebuild the all-items HICP from division indices and weights using the chained formula. Report the annual-rate gap in percentage points by country and year. The tolerance is fixed at M1 and must be documented.
+**Reconstruction gate:** rebuild the all-items HICP from division indices and weights using the chained formula. Report the annual-rate gap in percentage points by country and year.
+
+**Tolerance (fixed at M1):** from 2001-01, per geo, the 95th percentile of |gap| must be ≤ 0.10 pp and the maximum ≤ 0.30 pp.
+
+**M1 result:** 28 of 29 geos pass, with 95th-percentile gaps of 0.014–0.031 pp. Italy is a documented source-side exception (`pricelens.qa.KNOWN_EXCEPTIONS`; evidence in `reports/m1_qa.md`). Any new exception requires diagnostic evidence in the report.
 
 **Rebase check:** the 2025=100 and 2015=100 series must give the same rates within rounding.
 

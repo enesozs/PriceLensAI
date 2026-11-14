@@ -1,7 +1,7 @@
 # PriceLens AI
 ### Inflation, purchasing-power, and cost-of-living intelligence
 
-**Status: M0 complete (source audit); no application yet.** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
+**Status: M1 complete (warehouse + reconstruction QA); no application yet.** PriceLens AI is a proposed visual and analytical platform for understanding **what is getting more expensive, for whom, in which places, and with what uncertainty**. It combines official inflation indices, expenditure weights, official household-survey spending structures, reproducible forecasting, and transparent household-basket simulations.
 
 > **Core idea:** Inflation is reported as one headline percentage, but people buy different things. PriceLens helps users explore category-level price movements and understand how different spending weights — official income-quintile weights or a user's own illustrative basket — change the inflation that basket experiences.
 
@@ -70,14 +70,18 @@ See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for the data contract.
 
 ## Installation and demo status
 
-**M0 (source audit) complete.** No application exists yet. What works:
+**M0 (source audit) and M1 (warehouse) complete.** No application exists yet. What works:
 
 ```bash
 uv sync                      # Python 3.12 environment
 uv run pricelens fetch       # Eurostat bulk snapshots -> data/raw/ (+ manifest with sha256 and licence)
-uv run pricelens audit       # coverage / flags / weights / HBS report -> reports/m0_source_audit.md
-uv run pytest                # connector tests
+uv run pricelens audit       # M0 coverage / flags / weights / HBS report -> reports/m0_source_audit.md
+uv run pricelens curate      # normalized Parquet tables -> data/curated/
+uv run pricelens qa          # data-contract checks + official-HICP reconstruction -> reports/m1_qa.md
+uv run pytest                # unit tests (connector, chain-linking, HBS bridge)
 ```
+
+The official all-items HICP is reproduced from published division indices and weights within a 95th-percentile annual-rate gap of 0.014–0.031 pp for 28 of 29 geos. Italy is a documented exception; see [`reports/m1_qa.md`](reports/m1_qa.md).
 
 
 ## Data attribution

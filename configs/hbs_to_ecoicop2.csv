@@ -1,0 +1,21 @@
+hbs_code,method,from_division,to_division,split_classes,note
+CP01,identity,CP01,CP01,,Food and non-alcoholic beverages
+CP02,identity,CP02,CP02,,"Alcohol, tobacco, narcotics"
+CP03,identity,CP03,CP03,,Clothing and footwear
+CP04,identity,CP04,CP04,,Housing (imputed rent removed below)
+CP05,identity,CP05,CP05,,Furnishings and household equipment
+CP06,identity,CP06,CP06,,Health
+CP07,identity,CP07,CP07,,Transport
+CP08,identity,CP08,CP08,,Communications -> Information and communication
+CP09,identity,CP09,CP09,,Recreation and culture -> Recreation sport and culture
+CP10,identity,CP10,CP10,,Education
+CP11,identity,CP11,CP11,,Restaurants and hotels -> Restaurants and accommodation
+CP12,identity,CP12,CP13,,Miscellaneous -> ver.2 CP13 by default (insurance and financial moved back below)
+CP042,exclude,CP04,,,Imputed rentals of owner-occupiers: outside HICP scope
+CP081,move,CP08,CP07,,Postal services -> ver.2 CP0741 Postal and courier services
+CP0911,move,CP09,CP08,,Sound and picture equipment -> ver.2 CP0814
+CP0913,move,CP09,CP08,,Information processing equipment -> ver.2 CP0813
+CP0914,split,CP09,,CP08:CP0815|CP09:CP0952,Recording media: unrecorded (CP0815) vs audiovisual media (CP0952)
+CP0915,split,CP09,,CP08:CP0835|CP09:CP0941,Repair: ICT equipment (CP0835) vs photographic equipment (CP0941)
+CP125,move,CP13,CP12,,Insurance -> ver.2 CP121
+CP126,move,CP13,CP12,,Financial services n.e.c. -> ver.2 CP122

@@ -4,7 +4,6 @@
 __pycache__/
 .pytest_cache/
 .ruff_cache/
-node_modules/
 .next/
 data/raw/
 data/interim/
@@ -12,3 +11,7 @@ data/processed/
 artifacts/
 mlruns/
 .DS_Store
+app/node_modules/
+app/dist/
+node_modules/
+data/curated/

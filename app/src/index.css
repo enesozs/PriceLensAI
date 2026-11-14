@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/newsreader";
+
+/* Theme tokens. Aggregate palette validated with the dataviz validator (adjacent pairlist, light + dark):
+   energy, food, non-energy goods, services. Never used for all-pairs forms (scatter). */
+:root {
+  color-scheme: light;
+  --bg: #f7f6f2;
+  --surface: #fcfcfb;
+  --ink: #161615;
+  --ink-2: #52514e;
+  --muted: #7d7c76;
+  --rule: #e2e0d9;
+  --grid: #ecebe6;
+  --hover: #efede7;
+  --c-nrg: #eb6834;
+  --c-food: #1baf7a;
+  --c-neig: #2a78d6;
+  --c-serv: #e87ba4;
+  --div-lo: #104281;
+  --div-lo2: #3987e5;
+  --div-mid: #f0efec;
+  --div-hi2: #e34948;
+  --div-hi: #8f1d1c;
+  --highlight: #161615;
+  --badge-official: #e6efe9;
+  --badge-official-ink: #1d5b3c;
+  --badge-flash: #fbeedb;
+  --badge-flash-ink: #7a4b07;
+  --badge-custom: #e8eefb;
+  --badge-custom-ink: #1c4a8f;
+  --badge-hypo: #f6e5ee;
+  --badge-hypo-ink: #7e2350;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #8f8e86;
+    --rule: #2f2f2c;
+    --grid: #262624;
+    --hover: #232321;
+    --c-nrg: #d95926;
+    --c-food: #199e70;
+    --c-neig: #3987e5;
+    --c-serv: #d55181;
+    --div-lo: #6da7ec;
+    --div-lo2: #2a78d6;
+    --div-mid: #383835;
+    --div-hi2: #c23b3a;
+    --div-hi: #f08f8e;
+    --highlight: #f0efec;
+    --badge-official: #1d3327;
+    --badge-official-ink: #9fd9b7;
+    --badge-flash: #3a2c14;
+    --badge-flash-ink: #f3c77d;
+    --badge-custom: #1b2a44;
+    --badge-custom-ink: #a9c6f5;
+    --badge-hypo: #3a1c2b;
+    --badge-hypo-ink: #f0a9c9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #8f8e86;
+  --rule: #2f2f2c;
+  --grid: #262624;
+  --hover: #232321;
+  --c-nrg: #d95926;
+  --c-food: #199e70;
+  --c-neig: #3987e5;
+  --c-serv: #d55181;
+  --div-lo: #6da7ec;
+  --div-lo2: #2a78d6;
+  --div-mid: #383835;
+  --div-hi2: #c23b3a;
+  --div-hi: #f08f8e;
+  --highlight: #f0efec;
+  --badge-official: #1d3327;
+  --badge-official-ink: #9fd9b7;
+  --badge-flash: #3a2c14;
+  --badge-flash-ink: #f3c77d;
+  --badge-custom: #1b2a44;
+  --badge-custom-ink: #a9c6f5;
+  --badge-hypo: #3a1c2b;
+  --badge-hypo-ink: #f0a9c9;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-serif: "Newsreader Variable", Georgia, serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-hover: var(--hover);
+}
+
+html { background: var(--bg); color: var(--ink); }
+body { font-family: var(--font-sans); font-feature-settings: "tnum" 1, "cv11" 1; -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Observable Plot tooltips follow the theme */
+[aria-label="tip"] path { fill: var(--surface); stroke: var(--rule); }
+[aria-label="tip"] text { fill: var(--ink); }

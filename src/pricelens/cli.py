@@ -41,6 +41,13 @@ def cmd_qa(args: argparse.Namespace) -> None:
         sys.exit("QA FAILED: see reports/m1_qa.md")
 
 
+def cmd_export(args: argparse.Namespace) -> None:
+    from pricelens.export import export
+
+    sizes = export()
+    print(f"exported {len(sizes)} files, {sum(sizes.values()) / 1e6:.2f} MB")
+
+
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="pricelens")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -53,6 +60,8 @@ def main(argv: list[str] | None = None) -> None:
     c.set_defaults(func=cmd_curate)
     q = sub.add_parser("qa", help="data-contract checks + official-HICP reconstruction gate")
     q.set_defaults(func=cmd_qa)
+    e = sub.add_parser("export", help="static JSON for the web app -> app/public/data")
+    e.set_defaults(func=cmd_export)
     args = p.parse_args(argv)
     args.func(args)
 

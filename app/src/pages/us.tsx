@@ -66,6 +66,7 @@ export function USPage() {
             (95th percentile) since 2001. Before 2007 BLS indices have one decimal, so earlier weights are less precise.
           </li>
           <li>Missing months are shown as gaps, never interpolated.</li>
+          <li>BLS.gov cannot vouch for the data or analyses derived from these data after the data have been retrieved from BLS.gov.</li>
         </ul>
       </section>
     </div>

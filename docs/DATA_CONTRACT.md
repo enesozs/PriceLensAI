@@ -2,16 +2,16 @@
 
 ## Source and grain
 
-**Indices** (`prc_hicp_minr`):
-- **Grain:** one observation per `(geo, coicop_code, time_month, index_reference_base, unit, classification_version, snapshot_version)`.
-- **Fields:** `index_value`, status flags and source metadata.
-- **Bases:** store both 2025=100 and 2015=100 where published.
-- **Classification:** `classification_version` is `ecoicop_v2` for current data. A legacy `ecoicop_v1` bridge is used only when explicitly documented.
+**Indices** (`prc_hicp_minr` → curated table `hicp_index`):
+- **Grain:** one observation per `(geo, coicop, date, unit)`, where `unit` is the index reference base (`I25` = 2025=100, `I15` = 2015=100).
+- **Fields:** `value`, `flag` (Eurostat observation status), `level` in the classification and `source_version` (Eurostat's data timestamp).
+- **Classification:** ECOICOP ver. 2 throughout; Eurostat back-calculates its history to 1996.
+- **Rates:** published monthly and annual rates are kept separately (`hicp_rates`) for validation.
 
-**Weights** (`prc_hicp_iw`):
-- **Grain:** one observation per `(geo, coicop_code, calendar_year, classification_version)`.
-- **Fields:** `item_weight_per_1000` and metadata.
-- **Legacy:** the discontinued `prc_hicp_inw` is used only as an explicitly documented historical bridge.
+**Weights** (`prc_hicp_iw` → `hicp_weights`):
+- **Grain:** one observation per `(geo, coicop, year)`.
+- **Fields:** `weight_per_1000` (price-updated to December of the previous year), `flag`, `level`, `source_version`.
+- The discontinued `prc_hicp_inw` (old classification) is not used.
 
 **Quintile weights** (`hbs_str_t223`):
 - **Grain:** one observation per `(geo, income_quintile, coicop1999_code, survey_wave)`.
@@ -22,15 +22,15 @@
 - **Flags:** note waves that were imputed or price-converted (for example the 2020 figures for CY, FR and MT) and countries with no data.
 
 **Mappings:**
-- The ECOICOP ver. 2 hierarchy and labels.
-- An ECOICOP v1 → v2 bridge.
-- A COICOP 1999 → ECOICOP v2 bridge at division level.
+- The ECOICOP ver. 2 hierarchy and labels (`coicop`, from Eurostat's codelist).
+- A COICOP 1999 → ECOICOP ver. 2 bridge at division level, for the HBS shares.
 
 Never double count parent and child categories. Handle rebasing and classification changes explicitly.
 
 **Source manifest:** one row per fetched file, recording:
-- URL, request parameters and retrieval timestamp;
-- content hash and row count;
+- URL (and request parameters for API sources) and retrieval timestamp;
+- the source's own data version where it publishes one;
+- content hash (SHA-256) and size;
 - licence identifier.
 
 ## Basket formulas
@@ -40,11 +40,11 @@ All baskets require disjoint, exhaustive categories at one hierarchy level. Reje
 - **Fixed-base:** `100 * sum_i(w_i * I_{i,t}/I_{i,b})`, with output type `custom_fixed_basket`.
 - **Chained annual:** for months `t` in year `y`, compute the link `L_t = sum_i(w_{i,y} * I_{i,t}/I_{i,Dec(y-1)})` and chain the links. The output type is `custom_chained_basket`, or `hbs_quintile_basket` when the weights come from the HBS.
 
-Every result returns:
-- the formula and mode;
-- the base or link months;
-- coverage and the weight source;
-- the type label.
+Every displayed basket result states:
+- the method (fixed-base or chained);
+- the base month;
+- the weight source and any rescaling;
+- the measure type.
 
 Baskets are computed client-side, and user baskets are never persisted server-side.
 
@@ -57,7 +57,7 @@ Baskets are computed client-side, and user baskets are never persisted server-si
 - country and category coverage;
 - flag handling and snapshot versioning;
 - no accidental mixing of HICP and CPI;
-- byte-identical rebuilds from the same snapshot.
+- table fingerprints recorded on every run; a full rebuild from the same snapshots reproduces the forecasts and scores exactly.
 
 **Reconstruction gate:** rebuild the all-items HICP from division indices and weights using the chained formula. Report the annual-rate gap in percentage points by country and year.
 
@@ -70,8 +70,8 @@ Baskets are computed client-side, and user baskets are never persisted server-si
 ## Forecast policy
 
 - Never train on future months, and never claim operational historical forecasting from data that would not have been available at the time.
-- Every forecast carries `issued_at`, `target_month`, `observed_release_cutoff`, `source_version`, `model_id` and fold provenance.
-- Benchmarks (flash, ECB staff projections, SPF) are stored with their own publication dates and are compared only at matching horizon and aggregate.
+- Every forecast is keyed by its origin month and horizon. The run records the information cutoff (`issued_as_of`), the data versions and the chosen model with its tuning results.
+- Benchmarks (the Eurostat flash estimate and ECB/Eurosystem staff projections) are compared only at matching target months, horizons and aggregates.
 - Missing values are never silently forward-filled as actual HICP values.
 
 ## Labeling
@@ -88,7 +88,7 @@ Always distinguish these measure types; they are not interchangeable:
 
 ## Licence record
 
-Every source has a licence record before first use. Each record covers:
+Every source has a licence record before first use; the public summary is [DATA_LICENSES.md](../DATA_LICENSES.md). Each record covers:
 - the licence;
 - attribution text;
 - modification notice;

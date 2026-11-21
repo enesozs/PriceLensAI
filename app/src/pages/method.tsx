@@ -76,12 +76,31 @@ export function MethodPage({ meta }: { meta: Meta }) {
       <H>Sources and licences</H>
       <ul className="mb-3 max-w-3xl list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-ink-2">
         <li>
-          Eurostat HICP monthly indices and rates (<code>prc_hicp_minr</code>) and item weights (<code>prc_hicp_iw</code>);
-          Household Budget Survey structures by income quintile (<code>hbs_str_t223</code>). Reuse authorised with
-          acknowledgement of the source (Eurostat copyright notice; CC BY 4.0). Data versions:{" "}
-          {meta.source_versions.join(", ")}.
+          <strong className="text-ink">Eurostat</strong>, © European Union: HICP monthly indices and rates (<code>prc_hicp_minr</code>), item
+          weights (<code>prc_hicp_iw</code>), first-released data including flash estimates (<code>prc_hicp_fpd</code>, <code>prc_hicp_fp</code>)
+          and Household Budget Survey structures by income quintile (<code>hbs_str_t223</code>). Reuse under the Eurostat copyright notice;
+          data versions {meta.source_versions.join(", ")}. Everything except the official series is transformed by PriceLens, and Eurostat bears no
+          responsibility for it.
         </li>
-        <li>Country boundaries: Natural Earth (public domain), via the world-atlas package.</li>
+        <li>
+          <strong className="text-ink">European Commission</strong>, Weekly Oil Bulletin (consumer fuel prices), CC BY 4.0
+          {meta.sources?.oil_bulletin_retrieved ? `, retrieved ${meta.sources.oil_bulletin_retrieved}` : ""}. Averaged by month and used as
+          forecast inputs only.
+        </li>
+        <li>
+          <strong className="text-ink">Source: U.S. Energy Information Administration</strong>
+          {meta.sources?.eia_release ? ` (${monthLabel(meta.sources.eia_release.slice(0, 7))})` : ""}, Europe Brent spot price; public domain.
+          Converted to euros and averaged by month as a forecast input.
+        </li>
+        <li>
+          <strong className="text-ink">Source: ECB statistics</strong> for the EUR/USD reference rate (used only to convert Brent). Eurosystem/ECB
+          staff projections, source: ECB; PriceLens shows only its own calculation of their forecast errors, not the projections themselves.
+        </li>
+        <li>
+          <strong className="text-ink">Source: U.S. Bureau of Labor Statistics</strong>, CPI-U (public domain). BLS.gov cannot vouch for the
+          data or analyses derived from these data after the data have been retrieved from BLS.gov.
+        </li>
+        <li>Country boundaries: Made with Natural Earth (public domain), via the world-atlas package (ISC). Fonts: Inter and Newsreader (SIL OFL 1.1).</li>
         <li>
           Latest month: {monthLabel(meta.latest_month, true)}
           {meta.flash_month ? " is a flash estimate for the euro area and some member states; full data follow mid-month." : "."}

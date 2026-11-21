@@ -315,7 +315,7 @@ function Benchmarks({ meta, fd }: { meta: Meta; fd: ForecastData }) {
           return ecbWins ? "ECB staff projections are more accurate, too" : "Against ECB staff projections";
         })()}
         subtitle={<>The ECB and Eurosystem staff publish quarterly projections four times a year. Here PriceLens's monthly forecasts are averaged into the same quarters for the euro area. Q0 is the quarter of the projection, Q1 the following quarter.</>}
-        footnote="Mean absolute error of the quarterly annual rate, projection exercises from 2020 onward. Staff projections usually use one more month of data (the flash) than PriceLens's comparable forecast. Source: ECB statistics (projections shown unmodified)."
+        footnote="Mean absolute error of the quarterly annual rate, projection exercises from 2020 onward. Staff projections usually use one more month of data (the flash) than PriceLens's comparable forecast. Projections: Eurosystem/ECB staff macroeconomic projections, source: ECB; the error statistics are computed by PriceLens."
         table={<DataTable head={["Quarter", "Measure", "Exercises", "PriceLens MAE (pp)", "ECB staff MAE (pp)"]} rows={st.map((r) => [r.horizon, meta.labels[r.code], r.n, num(r.ours_mae, 3), num(r.ecb_mae, 3)])} />}
       >
         <div className="overflow-x-auto rounded border border-rule">

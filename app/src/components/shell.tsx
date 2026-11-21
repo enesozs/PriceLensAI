@@ -65,7 +65,10 @@ export function Shell({ meta, children }: { meta: Meta | null; children: ReactNo
       <main className="mx-auto max-w-6xl px-4 sm:px-6">{children}</main>
       <footer className="mt-10 border-t border-rule">
         <div className="mx-auto max-w-6xl px-4 py-8 text-xs leading-relaxed text-muted sm:px-6">
-          <p>{meta?.attribution} United States page: U.S. Bureau of Labor Statistics (public domain).</p>
+          <p>
+            {meta?.attribution} United States page: U.S. Bureau of Labor Statistics. Forecast inputs and benchmarks: European Commission Weekly Oil
+            Bulletin, U.S. Energy Information Administration, ECB. Full credits on the Method & sources page.
+          </p>
           {meta && (
             <p className="mt-1">
               HICP data to {monthLabel(meta.latest_month, true)}

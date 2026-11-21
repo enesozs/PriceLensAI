@@ -16,6 +16,8 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
 | ![Inflation Atlas](docs/screenshots/atlas.png) | ![Income groups](docs/screenshots/income-groups.png) |
 | **Basket Studio** | **Forecast Lab** |
 | ![Basket Studio](docs/screenshots/basket.png) | ![Forecast Lab](docs/screenshots/forecasts.png) |
+| **United States** | |
+| ![United States](docs/screenshots/united-states.png) | |
 
 ## What it shows
 
@@ -85,7 +87,7 @@ Eurostat (HICP monthly + weights + first releases, HBS)  ·  Oil Bulletin  ·  E
         ▼
 Python pipeline (uv, Polars, Parquet, statsmodels, scikit-learn)
   curate ─► QA gate (reconstruction of the official HICP) ─► contributions ─► income-group indices ─► forecasts
-        │ compact JSON (≈6 MB)
+        │ compact JSON (≈4.5 MB)
         ▼
 Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — basket maths runs in the browser
 ```
@@ -107,14 +109,21 @@ Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — bask
 
 ## Data and attribution
 
-- **Eurostat** (`prc_hicp_minr`, `prc_hicp_iw`, `prc_hicp_fpd`, `prc_hicp_fp`, `hbs_str_t223`): reused under the Eurostat copyright notice (CC BY 4.0). Data were transformed by PriceLens; Eurostat bears no responsibility for the results.
-- **European Commission Weekly Oil Bulletin:** CC BY 4.0.
-- **U.S. Energy Information Administration Brent spot price:** public domain.
-- **U.S. Bureau of Labor Statistics CPI-U:** public domain.
-- **ECB statistics:** EUR/USD reference rate and Eurosystem/ECB staff projections, shown unmodified.
-- **Map boundaries:** Natural Earth (public domain).
+- **Eurostat**, © European Union (`prc_hicp_minr`, `prc_hicp_iw`, `prc_hicp_fpd`, `prc_hicp_fp`, `hbs_str_t223`): reused under the Eurostat copyright notice. Data were transformed by PriceLens; Eurostat bears no responsibility for the results.
+- **European Commission, Weekly Oil Bulletin** (CC BY 4.0): forecast input only, not republished.
+- **U.S. Energy Information Administration**, Brent spot price (public domain): forecast input only, not republished.
+- **ECB:** EUR/USD reference rate ("Source: ECB statistics"), used only for currency conversion. Eurosystem/ECB staff projections are used as a benchmark; only PriceLens's own error statistics are shown.
+- **U.S. Bureau of Labor Statistics**, CPI-U (public domain). BLS.gov cannot vouch for the data or analyses derived from these data after the data have been retrieved from BLS.gov.
+- **Map boundaries:** Made with Natural Earth (public domain), via world-atlas (ISC).
+
+The terms, required credits and what is adapted from each source are set out in [DATA_LICENSES.md](DATA_LICENSES.md).
+
+## Licence
+
+The code is released under the [MIT License](LICENSE). The data and figures derived from the sources above stay under their own terms ([DATA_LICENSES.md](DATA_LICENSES.md)). Bundled third-party assets (map data, fonts) carry their licences in [LICENSES/](LICENSES/).
 
 ## Documents
 
 - [Data contract](docs/DATA_CONTRACT.md): sources, grain, formulas and labelling
+- [Data licences](DATA_LICENSES.md): terms and attributions for every source
 - Reports: [source audit](reports/source_audit.md) · [data QA](reports/qa.md) · [forecast benchmark](reports/forecast.md) · [advanced models](reports/advanced.md) · [United States](reports/us.md)

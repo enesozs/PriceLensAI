@@ -47,9 +47,32 @@ SHORT = {
 }
 GEO_NAME_OVERRIDE = {"EA": "Euro area", "EU27_2020": "European Union"}
 ATTRIBUTION = (
-    "Source: Eurostat (PRC_HICP_MINR, PRC_HICP_IW, HBS_STR_T223). Data transformed by PriceLens; "
-    "Eurostat bears no responsibility for the results."
+    "Source: Eurostat (PRC_HICP_MINR, PRC_HICP_IW, PRC_HICP_FPD, PRC_HICP_FP, HBS_STR_T223), © European Union. "
+    "Data transformed by PriceLens; Eurostat bears no responsibility for the results."
 )
+
+
+def source_dates() -> dict[str, str | None]:
+    """Latest retrieval date per non-Eurostat source (from the raw manifest) and the EIA release date."""
+    from pricelens.config import RAW
+    from pricelens.sources.extra import brent_release_date
+
+    seen: dict[str, str] = {}
+    manifest = RAW / "manifest.jsonl"
+    if manifest.exists():
+        for line in manifest.read_text().splitlines():
+            e = json.loads(line)
+            seen[e["source"]] = max(seen.get(e["source"], ""), e["retrieved_at"][:10])
+    try:
+        eia = brent_release_date()
+    except FileNotFoundError:
+        eia = None
+    return {
+        "oil_bulletin_retrieved": seen.get("oil_bulletin"),
+        "ecb_retrieved": seen.get("ecb"),
+        "bls_retrieved": seen.get("bls"),
+        "eia_release": eia,
+    }
 
 
 def _months(d0: date, d1: date) -> list[date]:
@@ -221,6 +244,7 @@ def export(out: Path = EXPORT) -> dict[str, int]:
             "divisions": DIVISIONS,
             "labels": SHORT,
             "attribution": ATTRIBUTION,
+            "sources": source_dates(),
         },
     )
     from pricelens.quintile import export_quintiles

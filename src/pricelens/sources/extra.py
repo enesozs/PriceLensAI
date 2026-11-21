@@ -80,6 +80,18 @@ def brent() -> pl.DataFrame:
     )
 
 
+def brent_release_date() -> str | None:
+    """Release date printed in the EIA workbook ("Release Date: MM/DD/YYYY"), as YYYY-MM-DD.
+    EIA asks for an acknowledgment that includes the publication date."""
+    wb = fastexcel.read_excel(latest("eia", "RBRTEd.xls").read_bytes())
+    raw = wb.load_sheet_by_name("Contents", header_row=None).to_polars()
+    for row in raw.iter_rows():
+        if row[0] and str(row[0]).startswith("Release Date") and row[1]:
+            m, d, y = str(row[1]).split()[0].split("/")
+            return f"{y}-{int(m):02d}-{int(d):02d}"
+    return None
+
+
 def eurusd() -> pl.DataFrame:
     """Daily ECB reference rate, USD per EUR: date, usd_per_eur."""
     df = pl.read_csv(io.BytesIO(latest("ecb", "exr_usd_eur_daily.csv").read_bytes()), infer_schema=False)

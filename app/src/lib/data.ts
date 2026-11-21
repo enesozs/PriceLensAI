@@ -15,6 +15,7 @@ export type Meta = {
   divisions: string[];
   labels: Record<string, string>;
   attribution: string;
+  sources?: { oil_bulletin_retrieved: string | null; ecb_retrieved: string | null; bls_retrieved: string | null; eia_release: string | null };
 };
 export type Rates = {
   months: string[];

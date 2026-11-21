@@ -1,6 +1,6 @@
 # Data quality report (generated)
 
-Generated 2026-11-21T12:48:28+00:00 by `uv run pricelens qa`. Source versions: 2026-10-16T23:00:00+0200, 2026-11-04T11:00:00+0100.
+Generated 2026-11-21T12:50:39+00:00 by `uv run pricelens qa`. Source versions: 2026-10-16T23:00:00+0200, 2026-11-18T11:00:00+0100.
 
 **Overall: PASS**
 
@@ -8,12 +8,12 @@ Generated 2026-11-21T12:48:28+00:00 by `uv run pricelens qa`. Source versions: 2
 |---|---|---|
 | unique key hicp_index | PASS | 0 duplicate keys |
 | positive index values (total, divisions, aggregates) | PASS | 0 negative, 0 zero at core levels |
-| zero indices at detailed levels | WARN | 762 published 0.00 values (items made free or rounded to zero) in ['BE', 'BG', 'EE', 'IE', 'RO']; never used as basket components |
+| zero indices at detailed levels | WARN | 766 published 0.00 values (items made free or rounded to zero) in ['BE', 'BG', 'EE', 'IE', 'RO']; never used as basket components |
 | no null values with flags in index | WARN | 8 rows (e.g. confidential) |
 | all warehouse geos present | PASS | missing: [] |
 | division weights sum to 1000 | PASS | 892 geo-years; 0 outside ±0.05; 0 with <13 divisions |
 | forecast scope continuous 2001→latest | PASS | 90 series; 0 with gaps (expected 310 months) |
-| YoY from I25 matches published RCH_A | PASS | max |gap| 0.050 pp over 10283 geo-months (RCH_A has 1 decimal) |
+| YoY from I25 matches published RCH_A | PASS | max |gap| 0.050 pp over 10290 geo-months (RCH_A has 1 decimal) |
 | official HICP reconstruction (forecast geos) | WARN | p95 ≤ 0.1 pp and max ≤ 0.3 pp from 2001-01; failing: []; documented exceptions: ['IT'] |
 | official HICP reconstruction (all geos) | PASS | failing: []; not reconstructable: [] |
 | HBS quintile bridge | PASS | 25 countries usable in ≥1 wave; not usable: ['IT', 'SE'] |
@@ -26,35 +26,35 @@ Gate: per geo, 95th percentile |gap| ≤ 0.1 pp and max |gap| ≤ 0.3 pp from 20
 
 | geo | months | from | median_abs_pp | p95_abs_pp | max_abs_pp | chain_drift_last_pct | gate |
 |---|---|---|---|---|---|---|---|
-| AT | 309 | 2001-01 | 0.006 | 0.016 | 0.032 | 0.000 | PASS |
-| BE | 309 | 2001-01 | 0.007 | 0.022 | 0.032 | -0.001 | PASS |
-| BG | 309 | 2001-01 | 0.007 | 0.025 | 0.036 | -0.002 | PASS |
-| CY | 309 | 2001-01 | 0.006 | 0.018 | 0.025 | -0.003 | PASS |
-| CZ | 309 | 2001-01 | 0.006 | 0.022 | 0.032 | -0.005 | PASS |
-| DE | 309 | 2001-01 | 0.006 | 0.018 | 0.022 | 0.002 | PASS |
-| DK | 309 | 2001-01 | 0.005 | 0.015 | 0.020 | -0.015 | PASS |
-| EA | 309 | 2001-01 | 0.007 | 0.021 | 0.037 | 0.004 | PASS |
-| EE | 309 | 2001-01 | 0.006 | 0.023 | 0.033 | -0.010 | PASS |
-| EL | 309 | 2001-01 | 0.005 | 0.017 | 0.031 | 0.005 | PASS |
-| ES | 309 | 2001-01 | 0.005 | 0.015 | 0.027 | -0.000 | PASS |
-| EU27_2020 | 309 | 2001-01 | 0.005 | 0.015 | 0.025 | 0.007 | PASS |
-| FI | 309 | 2001-01 | 0.007 | 0.020 | 0.030 | -0.012 | PASS |
-| FR | 309 | 2001-01 | 0.005 | 0.014 | 0.022 | 0.003 | PASS |
-| HR | 309 | 2001-01 | 0.007 | 0.018 | 0.036 | 0.010 | PASS |
-| HU | 309 | 2001-01 | 0.008 | 0.027 | 0.036 | -0.003 | PASS |
-| IE | 309 | 2001-01 | 0.007 | 0.019 | 0.029 | 0.002 | PASS |
-| IT | 309 | 2001-01 | 0.057 | 0.166 | 0.296 | -0.152 | FAIL |
-| LT | 309 | 2001-01 | 0.007 | 0.021 | 0.044 | 0.013 | PASS |
-| LU | 309 | 2001-01 | 0.005 | 0.016 | 0.027 | 0.010 | PASS |
-| LV | 309 | 2001-01 | 0.007 | 0.026 | 0.045 | -0.018 | PASS |
-| MT | 309 | 2001-01 | 0.005 | 0.017 | 0.025 | -0.003 | PASS |
-| NL | 309 | 2001-01 | 0.007 | 0.020 | 0.031 | -0.009 | PASS |
-| PL | 309 | 2001-01 | 0.006 | 0.021 | 0.030 | -0.000 | PASS |
-| PT | 309 | 2001-01 | 0.005 | 0.014 | 0.020 | -0.004 | PASS |
-| RO | 297 | 2002-01 | 0.008 | 0.031 | 0.056 | 0.011 | PASS |
-| SE | 309 | 2001-01 | 0.005 | 0.015 | 0.025 | 0.011 | PASS |
-| SI | 309 | 2001-01 | 0.006 | 0.019 | 0.029 | -0.013 | PASS |
-| SK | 309 | 2001-01 | 0.007 | 0.024 | 0.033 | -0.006 | PASS |
+| AT | 310 | 2001-01 | 0.006 | 0.016 | 0.032 | 0.000 | PASS |
+| BE | 310 | 2001-01 | 0.007 | 0.022 | 0.032 | 0.005 | PASS |
+| BG | 310 | 2001-01 | 0.007 | 0.025 | 0.036 | -0.003 | PASS |
+| CY | 310 | 2001-01 | 0.006 | 0.018 | 0.025 | -0.005 | PASS |
+| CZ | 310 | 2001-01 | 0.006 | 0.022 | 0.032 | -0.011 | PASS |
+| DE | 310 | 2001-01 | 0.006 | 0.018 | 0.022 | 0.004 | PASS |
+| DK | 310 | 2001-01 | 0.005 | 0.015 | 0.020 | -0.008 | PASS |
+| EA | 310 | 2001-01 | 0.007 | 0.021 | 0.037 | -0.005 | PASS |
+| EE | 310 | 2001-01 | 0.006 | 0.023 | 0.033 | -0.016 | PASS |
+| EL | 310 | 2001-01 | 0.005 | 0.017 | 0.031 | 0.001 | PASS |
+| ES | 310 | 2001-01 | 0.005 | 0.015 | 0.027 | 0.001 | PASS |
+| EU27_2020 | 310 | 2001-01 | 0.005 | 0.015 | 0.025 | 0.006 | PASS |
+| FI | 310 | 2001-01 | 0.007 | 0.020 | 0.030 | -0.002 | PASS |
+| FR | 310 | 2001-01 | 0.005 | 0.014 | 0.022 | 0.001 | PASS |
+| HR | 310 | 2001-01 | 0.007 | 0.018 | 0.036 | 0.001 | PASS |
+| HU | 310 | 2001-01 | 0.008 | 0.027 | 0.036 | -0.009 | PASS |
+| IE | 310 | 2001-01 | 0.007 | 0.019 | 0.029 | 0.002 | PASS |
+| IT | 310 | 2001-01 | 0.057 | 0.166 | 0.296 | -0.104 | FAIL |
+| LT | 310 | 2001-01 | 0.007 | 0.021 | 0.044 | 0.009 | PASS |
+| LU | 310 | 2001-01 | 0.005 | 0.016 | 0.027 | 0.016 | PASS |
+| LV | 310 | 2001-01 | 0.007 | 0.026 | 0.045 | -0.024 | PASS |
+| MT | 310 | 2001-01 | 0.005 | 0.017 | 0.025 | 0.001 | PASS |
+| NL | 310 | 2001-01 | 0.007 | 0.020 | 0.031 | -0.006 | PASS |
+| PL | 310 | 2001-01 | 0.006 | 0.021 | 0.030 | -0.002 | PASS |
+| PT | 310 | 2001-01 | 0.005 | 0.014 | 0.020 | -0.006 | PASS |
+| RO | 298 | 2002-01 | 0.008 | 0.031 | 0.056 | 0.015 | PASS |
+| SE | 310 | 2001-01 | 0.005 | 0.015 | 0.025 | 0.014 | PASS |
+| SI | 310 | 2001-01 | 0.006 | 0.019 | 0.029 | -0.012 | PASS |
+| SK | 310 | 2001-01 | 0.007 | 0.024 | 0.033 | -0.012 | PASS |
 
 ### Documented exceptions
 
@@ -173,4 +173,4 @@ Largest single-month gaps:
 - `hicp_weights`: `1613c00874befc27`
 - `coicop`: `559b2ede75ed6834`
 - `hbs_quintile`: `b802de64a159a42b`
-- `hicp_index_I25_total`: `9f986fbc9a46c543`
+- `hicp_index_I25_total`: `8022b78c1b3b34a2`

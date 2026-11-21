@@ -36,12 +36,12 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
   - Rebuilding the all-items HICP from Eurostat's 13 published category indices and annual weights, with the official December-linked chain formula, matches the published annual rate within 0.014–0.031 pp (95th percentile) for 28 of 29 series since 2001.
   - Italy is the documented exception; the hypothesis that its weights are not price-updated was tested and rejected ([`reports/qa.md`](reports/qa.md)).
   - The browser basket code passes the same check.
-- **Who faces higher inflation differs by country.** In September 2026, with 2020 survey weights:
-  - in Belgium the lowest-income fifth faced 6.3% inflation against 3.8% for the highest, almost entirely because of housing and energy;
-  - in 13 of 21 countries the highest-income fifth currently faces *higher* inflation (Bulgaria −2.1 pp, Latvia −1.9 pp, Germany −1.2 pp);
-  - in 14 of 21 countries the gap is under 1 pp either way.
+- **Who faces higher inflation differs by country.** In October 2026, with 2020 survey weights:
+  - in Belgium the lowest-income fifth faced 8.0% inflation against 4.4% for the highest, almost entirely because of housing and energy;
+  - in 10 of 21 countries the highest-income fifth currently faces *higher* inflation (Bulgaria −2.1 pp, Latvia −2.0 pp, Luxembourg −1.3 pp);
+  - in 16 of 21 countries the gap is under 1 pp either way.
 - **The forecasts beat simple rules but not the officials** ([`reports/forecast.md`](reports/forecast.md)). On the frozen 2020+ test period:
-  - The chosen model, pooled ridge (picked on 2012–2019 forecasts only), errs by 0.77 pp one month ahead against 0.94 pp for the best simple rule, and by 1.73 against 2.04 pp three months ahead.
+  - The chosen model, pooled ridge (picked on 2012–2019 forecasts only), errs by 0.77 pp one month ahead against 0.94 pp for the best simple rule, and by 1.73 against 2.05 pp three months ahead.
   - Eurostat's flash estimate, published two weeks after our forecast, errs by just 0.05 pp on the headline. ECB staff projections are also more accurate.
   - The ranges were too narrow in the 2020–23 shocks: 55–61% of outcomes fell inside the 80% range one month ahead.
 - **What drives the forecasts, and what was rejected** ([`reports/advanced.md`](reports/advanced.md)):

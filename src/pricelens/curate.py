@@ -1,4 +1,4 @@
-"""M1 curation: raw Eurostat snapshots -> normalized Parquet tables in data/curated/.
+"""Curation: raw Eurostat snapshots -> normalized Parquet tables in data/curated/.
 
 Tables
 ------

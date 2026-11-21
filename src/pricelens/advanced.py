@@ -1,4 +1,4 @@
-"""M6 experiments on top of the M4 Forecast Lab. Every adoption decision uses validation origins (2012-2019) only;
+"""Forecasting experiments on top of the Forecast Lab. Every adoption decision uses validation origins (2012-2019) only;
 test scores (2020+) are reported, never used to choose.
 
 1. Ablations: which inputs carry the pooled ridge model's gain over the seasonal floor?
@@ -6,7 +6,7 @@ test scores (2020+) are reported, never used to choose.
    official chain formula and weights, vs the direct headline forecast (and their average).
 3. Adaptive intervals: chosen inside the forecast pipeline (forecast.add_intervals); summarised here.
 
-Writes reports/m6_advanced.md and app/public/data/advanced.json.
+Writes reports/advanced.md and app/public/data/advanced.json.
 """
 
 from __future__ import annotations
@@ -211,7 +211,7 @@ def run(out: Path = EXPORT) -> dict:
     iv = pl.concat([cov(S, meta["interval_method"]), cov(alt, other)]).sort("h", "period", "method")
 
     lines = [
-        "# M6 advanced forecasting report (generated)",
+        "# Advanced forecasting experiments (generated)",
         "",
         "All choices on validation origins 2012–2019; test = origins 2020+ (reported only). Errors are annual-rate MAE in pp.",
         "",
@@ -238,7 +238,7 @@ def run(out: Path = EXPORT) -> dict:
         "",
     ]
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "m6_advanced.md").write_text("\n".join(lines))
+    (REPORTS / "advanced.md").write_text("\n".join(lines))
 
     r3 = lambda x: None if x is None else round(float(x), 3)  # noqa: E731
     payload = {

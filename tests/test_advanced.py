@@ -1,4 +1,4 @@
-"""M6: the bottom-up headline must equal the official chain aggregation when component forecasts are perfect."""
+"""The bottom-up headline must equal the official chain aggregation when component forecasts are perfect."""
 
 import math
 from datetime import date

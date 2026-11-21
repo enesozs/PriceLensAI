@@ -1,6 +1,6 @@
-"""M1 QA: data-contract checks and the official-HICP reconstruction gate.
+"""QA: data-contract checks and the official-HICP reconstruction gate.
 
-Writes reports/m1_qa.md and data/curated/qa.json. Returns False when any hard check fails.
+Writes reports/qa.md and data/curated/qa.json. Returns False when any hard check fails.
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ from pricelens.config import CURATED, REPORTS, forecast_geos, warehouse_geos
 from pricelens.curate import DIVISIONS
 from pricelens.reconstruction import chain_links, price_update_weights, reconstruct, yoy_gaps
 
-# Reconstruction gate (fixed at M1; rationale in reports/m1_qa.md and docs/DATA_CONTRACT.md)
+# Reconstruction gate (rationale in reports/qa.md and docs/DATA_CONTRACT.md)
 GATE_FROM = "2001-01"  # first years have incomplete component coverage in several countries
 GATE_P95_PP = 0.10  # 95th percentile |YoY gap| per geo, percentage points
 GATE_MAX_PP = 0.30  # worst single month per geo, percentage points
 WEIGHT_SUM_TOL = 0.05  # per 1000
 HBS_SUM_TOL = 6.0  # per 1000: 12 integer-rounded division shares can miss 1000 by up to ±6
 # Geos whose published all-items index is not reproducible from published divisions and annual weights for
-# reasons on the source side. Each entry must cite the diagnostic evidence in reports/m1_qa.md.
+# reasons on the source side. Each entry must cite the diagnostic evidence in reports/qa.md.
 KNOWN_EXCEPTIONS = {
     "IT": (
         "Gap persists in every year (p95 ≈ 0.17 pp), December levels match (≈0.00%) while other months deviate "
@@ -285,7 +285,7 @@ def run_qa() -> bool:
 
     ok = all(c.status != "FAIL" for c in checks)
     lines = [
-        "# M1 QA report (generated)",
+        "# Data quality report (generated)",
         "",
         f"Generated {datetime.now(UTC).isoformat(timespec='seconds')} by `uv run pricelens qa`. "
         f"Source versions: {', '.join(sorted(set(index['source_version'].unique().to_list() + weights['source_version'].unique().to_list())))}.",
@@ -335,7 +335,7 @@ def run_qa() -> bool:
         "",
     ]
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "m1_qa.md").write_text("\n".join(lines))
+    (REPORTS / "qa.md").write_text("\n".join(lines))
     (CURATED / "qa.json").write_text(
         json.dumps({"ok": ok, "checks": [asdict(c) for c in checks], "hashes": hashes}, indent=2)
     )

@@ -1,6 +1,6 @@
-# M0 source audit (generated)
+# Source audit (generated)
 
-Generated 2026-11-14T18:25:17+00:00 by `uv run pricelens audit`.
+Generated 2026-11-21T12:48:20+00:00 by `uv run pricelens audit`.
 
 ## PRC_HICP_MINR — snapshot `2026-11-04T110000+0100`
 

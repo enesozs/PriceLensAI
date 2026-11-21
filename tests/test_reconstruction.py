@@ -1,4 +1,4 @@
-"""Hand-worked fixtures for the chain-linked aggregation (see src/pricelens/reconstruction.py)."""
+"""Hand-worked fixtures for the chain-linked aggregation (src/pricelens/reconstruction.py)."""
 
 from datetime import date
 

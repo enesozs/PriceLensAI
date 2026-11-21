@@ -1,4 +1,4 @@
-"""M8 United States view: BLS CPI-U, shown separately from the HICP and never combined with it.
+"""United States view: BLS CPI-U, shown separately from the HICP and never combined with it.
 
 Derived weights
 ---------------
@@ -158,7 +158,7 @@ def build(out: Path = EXPORT) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     (out / "us.json").write_text(json.dumps(payload, separators=(",", ":"), allow_nan=False))
     lines = [
-        "# M8 United States (BLS CPI-U) report (generated)",
+        "# United States (BLS CPI-U) report (generated)",
         "",
         f"Source: {payload['source']}. Latest month {payload['latest_month']}. Months not published by BLS: {missing}.",
         "",
@@ -182,5 +182,5 @@ def build(out: Path = EXPORT) -> dict:
         "",
     ]
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "m8_us.md").write_text("\n".join(lines))
+    (REPORTS / "us.md").write_text("\n".join(lines))
     return {"latest": payload["latest_month"], "missing": missing, **payload["quality"]}

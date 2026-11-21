@@ -1,4 +1,4 @@
-# M8 United States (BLS CPI-U) report (generated)
+# United States (BLS CPI-U) report (generated)
 
 Source: U.S. Bureau of Labor Statistics, CPI-U, U.S. city average, not seasonally adjusted (1982-84=100). Latest month 2026-10. Months not published by BLS: ['2025-10'].
 

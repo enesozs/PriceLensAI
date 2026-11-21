@@ -114,3 +114,30 @@ def test_exog_features_ignore_data_after_the_cutoff(monkeypatch):
     monkeypatch.setattr(extra, "brent", lambda: brent_frame(False))
     b6 = fc.exog_features().filter((pl.col("geo") == "EA") & (pl.col("date") == date(2019, 6, 1)))
     assert a6["f_brent_1"][0] != pytest.approx(b6["f_brent_1"][0])
+
+
+def test_pivot_columns_have_a_fixed_order_whatever_the_row_order():
+    rows = pl.DataFrame(
+        {
+            "code": ["CP00"] * 3,
+            "h": [1] * 3,
+            "model": ["no_change", "ridge", "seasonal_mean"],
+            "mae": [0.3, 0.1, 0.2],
+        }
+    )
+    a = rows.pivot(on="model", index=["code", "h"], values="mae")
+    b = rows.reverse().pivot(on="model", index=["code", "h"], values="mae")
+    assert a.columns != b.columns  # pivot follows row order, which group_by does not fix
+    order = ["code", "h", "ridge", "seasonal_mean", "no_change"]
+    assert a.select(fc._ordered(a, order)).columns == order
+    assert b.select(fc._ordered(b, order)).columns == order
+    # preferred names that are missing are skipped; unexpected columns go last, sorted
+    c = a.with_columns(pl.lit(0.0).alias("extra"))
+    assert fc._ordered(c, ["code", "h", "ridge", "ridge", "missing"]) == [
+        "code",
+        "h",
+        "ridge",
+        "extra",
+        "no_change",
+        "seasonal_mean",
+    ]

@@ -1,7 +1,7 @@
 # PriceLens AI
 ### What is getting more expensive, for whom, where — and what comes next
 
-**Status: M0–M6 and M8 complete. The site runs locally as a static build; it is not deployed.**
+**Status:** complete; the site runs locally as a static build and is not publicly hosted.
 
 Inflation is reported as one headline number, but people buy different things. PriceLens is built on official Eurostat statistics. It shows:
 - which categories drive inflation in each EU country;
@@ -34,19 +34,19 @@ Every number is labelled as official, flash estimate, custom basket, income-grou
 
 - **The maths reproduces the official index.**
   - Rebuilding the all-items HICP from Eurostat's 13 published category indices and annual weights, with the official December-linked chain formula, matches the published annual rate within 0.014–0.031 pp (95th percentile) for 28 of 29 series since 2001.
-  - Italy is the documented exception; the hypothesis that its weights are not price-updated was tested and rejected ([`reports/m1_qa.md`](reports/m1_qa.md)).
+  - Italy is the documented exception; the hypothesis that its weights are not price-updated was tested and rejected ([`reports/qa.md`](reports/qa.md)).
   - The browser basket code passes the same check.
 - **Who faces higher inflation differs by country.** In September 2026, with 2020 survey weights:
   - in Belgium the lowest-income fifth faced 6.3% inflation against 3.8% for the highest, almost entirely because of housing and energy;
   - in 13 of 21 countries the highest-income fifth currently faces *higher* inflation (Bulgaria −2.1 pp, Latvia −1.9 pp, Germany −1.2 pp);
   - in 14 of 21 countries the gap is under 1 pp either way.
-- **The forecasts beat simple rules but not the officials** ([`reports/m4_forecast.md`](reports/m4_forecast.md)). On the frozen 2020+ test period:
+- **The forecasts beat simple rules but not the officials** ([`reports/forecast.md`](reports/forecast.md)). On the frozen 2020+ test period:
   - The chosen model, pooled ridge (picked on 2012–2019 forecasts only), errs by 0.77 pp one month ahead against 0.94 pp for the best simple rule, and by 1.73 against 2.04 pp three months ahead.
   - Eurostat's flash estimate, published two weeks after our forecast, errs by just 0.05 pp on the headline. ECB staff projections are also more accurate.
   - The ranges were too narrow in the 2020–23 shocks: 55–61% of outcomes fell inside the 80% range one month ahead.
-- **What drives the forecasts, and what was rejected** ([`reports/m6_advanced.md`](reports/m6_advanced.md)):
+- **What drives the forecasts, and what was rejected** ([`reports/advanced.md`](reports/advanced.md)):
   - Weekly pump prices from the Oil Bulletin carry the energy forecasts. Without oil, fuel and FX inputs, energy's gain over the seasonal rule falls from 25% to 5%.
-  - Two ideas were rejected under the M6 rule (adopt only with at least a 5% validation gain): a bottom-up headline (1.7% gain) and crisis-adaptive ranges.
+  - Two ideas were rejected under the adoption rule (at least a 5% validation gain): a bottom-up headline (1.7% gain) and crisis-adaptive ranges.
   - The adaptive ranges would have helped in 2022–23 (74% coverage instead of 55%) but scored worse on the calm validation years.
 
 ## Run it
@@ -66,13 +66,13 @@ Each step can also be run on its own:
 | Command | What it does |
 |---|---|
 | `fetch` | Eurostat bulk snapshots into `data/raw/`, with a manifest carrying sha256 and licence |
-| `audit` | M0 source report |
+| `audit` | Source audit report |
 | `curate` | Parquet warehouse in `data/curated/` |
 | `qa` | Data-contract checks and the reconstruction gate; fails the run on hard errors |
 | `fetch-extra` | Flash history, Oil Bulletin, Brent, ECB |
 | `forecast` | Rolling-origin backtest, benchmarks and live forecast |
-| `advanced` | M6 ablations, hierarchical headline and interval experiments |
-| `us` | M8 US view from BLS CPI-U |
+| `advanced` | Ablations, hierarchical headline and interval experiments |
+| `us` | US view from BLS CPI-U |
 | `export` | Site data in `app/public/data/`, which is committed so the site builds without the pipeline |
 
 The site data is committed, so `cd app && npm run build` works on a fresh clone. A full rebuild from the raw snapshots reproduces the forecasts and scores exactly.
@@ -114,7 +114,7 @@ Static site (Vite, React, TypeScript, Tailwind v4, Observable Plot, d3) — bask
 - **ECB statistics:** EUR/USD reference rate and Eurosystem/ECB staff projections, shown unmodified.
 - **Map boundaries:** Natural Earth (public domain).
 
-
 ## Documents
 
-See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for the data contract.
+- [Data contract](docs/DATA_CONTRACT.md): sources, grain, formulas and labelling
+- Reports: [source audit](reports/source_audit.md) · [data QA](reports/qa.md) · [forecast benchmark](reports/forecast.md) · [advanced models](reports/advanced.md) · [United States](reports/us.md)

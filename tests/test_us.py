@@ -1,4 +1,4 @@
-"""M8: derived December weights must recover the true weights of a December-linked index."""
+"""Derived December weights must recover the true weights of a December-linked index."""
 
 import math
 from datetime import date

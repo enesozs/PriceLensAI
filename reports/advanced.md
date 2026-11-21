@@ -1,4 +1,4 @@
-# M6 advanced forecasting report (generated)
+# Advanced forecasting experiments (generated)
 
 All choices on validation origins 2012–2019; test = origins 2020+ (reported only). Errors are annual-rate MAE in pp.
 

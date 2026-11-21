@@ -32,7 +32,7 @@ jobs:
           commit-message: "Data refresh (automated): pricelens all"
           body: |
             Automated monthly refresh: `uv run pricelens all` (fetch, curate, QA gate, forecasts, export).
-            Review reports/m1_qa.md and reports/m4_forecast.md before merging. Nothing is deployed.
+            Review reports/qa.md and reports/forecast.md before merging. Nothing is deployed.
           add-paths: |
             app/public/data
             reports

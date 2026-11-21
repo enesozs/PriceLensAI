@@ -1,4 +1,4 @@
-"""Income-quintile inflation (M3): HICP division indices weighted with HBS expenditure structures.
+"""Income-quintile inflation: HICP division indices weighted with HBS expenditure structures.
 
 For each usable geo and HBS wave, quintile shares (ECOICOP ver.2 divisions, imputed rent removed) are
 price-updated to every December and chained exactly like the HICP (see src/pricelens/reconstruction.py). Output type is

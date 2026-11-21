@@ -1,4 +1,4 @@
-"""Official-HICP reconstruction (M1 quality gate).
+"""Official-HICP reconstruction (quality gate).
 
 The HICP is an annually chain-linked Laspeyres-type index. For month t in year y, with weights w_{i,y}
 price-updated to December of y-1 (as published in PRC_HICP_IW):

@@ -52,10 +52,10 @@ describe("scenario extension", () => {
   });
 });
 
-// Chained mode with official division weights must reproduce the published all-items HICP (M1 gate, now on the
+// Chained mode with official division weights must reproduce the published all-items HICP (the reconstruction gate, now on the
 // browser implementation and the exported data).
 describe.each(["DE", "FR", "ES", "EA"])("official reconstruction %s", (geo) => {
-  it("annual rate within the M1 tolerance", () => {
+  it("annual rate within the reconstruction tolerance", () => {
     const g = JSON.parse(readFileSync(resolve(__dirname, `../../public/data/geo/${geo}.json`), "utf8"));
     const divs = Object.keys(g.index).filter((c) => /^CP\d\d$/.test(c));
     const sharesFor = (y: number) => {
@@ -73,7 +73,7 @@ describe.each(["DE", "FR", "ES", "EA"])("official reconstruction %s", (geo) => {
     gaps.sort((a, b) => a - b);
     const p95 = gaps[Math.floor(0.95 * (gaps.length - 1))];
     expect(gaps.length).toBeGreaterThan(250);
-    // published rates have 1 decimal, so allow 0.05 on top of the 0.10 pp M1 gate
+    // published rates have 1 decimal, so allow 0.05 on top of the 0.10 pp reconstruction gate
     expect(p95).toBeLessThan(0.15);
   });
 });

@@ -3,7 +3,7 @@ is tested against the same fixtures) and income-quintile baskets from HBS struct
 
 Fixed-base (Laspeyres-type):
     I_t = 100 * sum_i w_i * I_{i,t} / I_{i,b}
-Chained annual (see src/pricelens/reconstruction.py), shares w_{i,y} applied to December-linked links:
+Chained annual (as in src/pricelens/reconstruction.py), shares w_{i,y} applied to December-linked links:
     L_t = sum_i w_{i,y} * I_{i,t} / I_{i,Dec(y-1)},  I_t = I_{Dec(y-1)} * L_t
 """
 

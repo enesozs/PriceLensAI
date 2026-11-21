@@ -1,4 +1,4 @@
-"""M0 source audit: coverage, flags and weight-sum semantics, written to reports/m0_source_audit.md.
+"""Source audit: coverage, flags and weight-sum semantics, written to reports/source_audit.md.
 
 This is a pipeline report, not an ad-hoc exploration: it is rerun on every new snapshot.
 """
@@ -27,7 +27,7 @@ def _md(df: pl.DataFrame) -> str:
 def audit() -> str:
     geos = warehouse_geos()
     out: list[str] = [
-        "# M0 source audit (generated)",
+        "# Source audit (generated)",
         "",
         f"Generated {datetime.now(UTC).isoformat(timespec='seconds')} by `uv run pricelens audit`.",
         "",
@@ -253,5 +253,5 @@ def audit() -> str:
 def write_audit() -> str:
     REPORTS.mkdir(exist_ok=True)
     text = audit()
-    (REPORTS / "m0_source_audit.md").write_text(text)
+    (REPORTS / "source_audit.md").write_text(text)
     return text

@@ -1,6 +1,6 @@
-# M1 QA report (generated)
+# Data quality report (generated)
 
-Generated 2026-11-14T20:08:03+00:00 by `uv run pricelens qa`. Source versions: 2026-10-16T23:00:00+0200, 2026-11-04T11:00:00+0100.
+Generated 2026-11-21T12:48:28+00:00 by `uv run pricelens qa`. Source versions: 2026-10-16T23:00:00+0200, 2026-11-04T11:00:00+0100.
 
 **Overall: PASS**
 

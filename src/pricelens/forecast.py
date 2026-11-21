@@ -1,4 +1,4 @@
-"""M4 Forecast Laboratory: rolling-origin forecasts of HICP aggregates with honest benchmarks.
+"""Forecast Laboratory: rolling-origin forecasts of HICP aggregates with honest benchmarks.
 
 Information set (no lookahead)
 ------------------------------
@@ -193,7 +193,7 @@ def build_dataset(panel: pl.DataFrame, exog: pl.DataFrame) -> pl.DataFrame:
 
 def design(df: pl.DataFrame, h: int, exclude: tuple[str, ...] = ()) -> tuple[np.ndarray, list[str]]:
     """Feature matrix for the pooled linear model: own dynamics + exog x series-type interactions + calendar.
-    `exclude` drops feature families for ablations (M6)."""
+    `exclude` drops feature families for ablations."""
     cols, mats = [], []
     base = ["sd0", "sd1", "sd2", "sd_3m", "sd_6m", "sd_12m", "yoy0"]
     target_month = (pl.col("origin").dt.month() + h - 1) % 12
@@ -402,7 +402,7 @@ def add_intervals(sc: pl.DataFrame, method: str = "static") -> pl.DataFrame:
     static:   true value in [pred - q_hi(err), pred - q_lo(err)]
     adaptive: the same error quantiles scaled by recent error size,
               s = clip(mean|e| over the last ADAPTIVE_RECENT / mean|e| over the window, 0.5, 3), so ranges widen
-              quickly when a shock starts and narrow again when it fades (M6).
+              quickly when a shock starts and narrow again when it fades.
     """
     out = []
     for _key, g in sc.group_by("model", "geo", "code", "h"):
@@ -650,7 +650,7 @@ def run(out_dir: Path = CURATED) -> dict:
     interval_method = min(interval_choice, key=interval_choice.get)
     S = add_intervals(SC, interval_method)
     S_alt = add_intervals(SC, "adaptive" if interval_method == "static" else "static")
-    S_alt.write_parquet(out_dir / "forecast_backtest_alt_intervals.parquet")
+    S_alt.sort(BACKTEST_KEY).write_parquet(out_dir / "forecast_backtest_alt_intervals.parquet")
 
     # ---- model selection on validation only
     v = S.filter(
@@ -664,10 +664,12 @@ def run(out_dir: Path = CURATED) -> dict:
         "model"
     ][0]
 
-    S.write_parquet(out_dir / "forecast_backtest.parquet")
+    # Rows are sorted on their unique key before writing so rebuilds are byte-identical
+    # (group_by-based construction leaves row order arbitrary).
+    S.sort(BACKTEST_KEY).write_parquet(out_dir / "forecast_backtest.parquet")
     flash = flash_benchmark()
     staff = staff_benchmark(panel, P, chosen)
-    staff.write_parquet(out_dir / "forecast_staff_benchmark.parquet")
+    staff.sort(STAFF_KEY).write_parquet(out_dir / "forecast_staff_benchmark.parquet")
 
     # ---- live forecast from the latest full month (issued as of CUTOFF_DAY of the next month)
     live = S.filter((pl.col("origin") == full) & (pl.col("model") == chosen))
@@ -712,6 +714,16 @@ MODEL_LABEL = {
 }
 
 
+BACKTEST_KEY = ["geo", "code", "model", "h", "origin", "target"]
+STAFF_KEY = ["exercise", "origin", "horizon", "quarter", "code"]
+
+
+def _ordered(df: pl.DataFrame, preferred: list[str]) -> list[str]:
+    """Columns of ``df`` in ``preferred`` order (duplicates dropped), then any others, alphabetically."""
+    head = [c for c in dict.fromkeys(preferred) if c in df.columns]
+    return head + sorted(c for c in df.columns if c not in head)
+
+
 def summary_tables(
     S: pl.DataFrame, flash: pl.DataFrame, staff: pl.DataFrame, chosen: str
 ) -> dict[str, pl.DataFrame]:
@@ -727,8 +739,12 @@ def summary_tables(
         .group_by("code", "h", "model")
         .agg(mae=pl.col("err").abs().mean())
         .pivot(on="model", index=["code", "h"], values="mae")
+        .select("code", "h", chosen, "seasonal_mean", "no_change")
         .sort("h", "code")
     )
+    # group_by row order is not deterministic, so pivot column order isn't either: pin it so
+    # identical numbers always produce identical reports and JSON.
+    by_code = by_code.select(_ordered(by_code, ["code", "h", chosen, "seasonal_mean", "no_change"]))
     by_regime = (
         S.filter(
             pl.col("h").is_in([1, 3])
@@ -739,8 +755,10 @@ def summary_tables(
         .group_by("period", "h", "model")
         .agg(mae=pl.col("err").abs().mean())
         .pivot(on="model", index=["period", "h"], values="mae")
+        .select("period", "h", chosen, "seasonal_mean")
         .sort("h", "period")
     )
+    by_regime = by_regime.select(_ordered(by_regime, ["period", "h", chosen, "seasonal_mean"]))
     cov = (
         test.filter(pl.col("model") == chosen)
         .filter(pl.col("lo80").is_not_null())
@@ -805,7 +823,7 @@ def report(
 ) -> None:
     t = summary_tables(S, flash, staff, chosen)
     lines = [
-        "# M4 Forecast Laboratory report (generated)",
+        "# Forecast evaluation (generated)",
         "",
         f"Generated {meta['generated_at']} by `uv run pricelens forecast`. Latest origin {meta['latest_origin']}, issued as of "
         f"{meta['issued_as_of']}. Scores are annual-rate errors of the target month, in percentage points, over the euro area, "
@@ -854,7 +872,7 @@ def report(
         "",
     ]
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "m4_forecast.md").write_text("\n".join(lines))
+    (REPORTS / "forecast.md").write_text("\n".join(lines))
 
 
 def export(
@@ -870,8 +888,11 @@ def export(
     t = summary_tables(S, flash, staff, chosen)
     r3 = lambda x: None if x is None or (isinstance(x, float) and math.isnan(x)) else round(float(x), 3)  # noqa: E731
     series = {}
-    for (geo, code), g in S.filter((pl.col("model") == chosen) & pl.col("h").is_in([1, 3])).group_by(
-        "geo", "code"
+    # Sorted, order-preserving groups: dict key order (and so the JSON) is identical run to run.
+    for (geo, code), g in (
+        S.filter((pl.col("model") == chosen) & pl.col("h").is_in([1, 3]))
+        .sort("geo", "code")
+        .group_by("geo", "code", maintain_order=True)
     ):
         g = g.sort("target")
         series[f"{geo}|{code}"] = {
@@ -915,7 +936,7 @@ def export(
                 "flash": [r3(x) for x in g.sort("target")["flash"]],
                 "true": [r3(x) for x in g.sort("target")["yoy_true"]],
             }
-            for (geo, code), g in fl.group_by("geo", "code")
+            for (geo, code), g in fl.sort("geo", "code").group_by("geo", "code", maintain_order=True)
         },
         "staff": [
             {k: (r3(v) if isinstance(v, float) else v) for k, v in r.items()}

@@ -5,7 +5,7 @@ Files
 meta.json            geos, codes, labels, latest months, source versions, attribution
 rates.json           official annual rates (RCH_A) for every geo x headline code x month (columnar)
 geo/<GEO>.json       index levels (I25), annual rates, annual weights, contributions to the headline rate
-quality.json         reconstruction gate summary per geo (from M1 QA)
+quality.json         reconstruction gate summary per geo (from the QA step)
 """
 
 from __future__ import annotations

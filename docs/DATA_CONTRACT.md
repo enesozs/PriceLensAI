@@ -38,7 +38,7 @@ Never double count parent and child categories. Handle rebasing and classificati
 All baskets require disjoint, exhaustive categories at one hierarchy level. Reject negative or invalid weights. Either require coverage that sums to 1, or renormalize explicitly and show a notice.
 
 - **Fixed-base:** `100 * sum_i(w_i * I_{i,t}/I_{i,b})`, with output type `custom_fixed_basket`.
-- **Chained annual:** for months `t` in year `y`, compute the link `L_t = sum_i(w_{i,y} * I_{i,t}/I_{i,Dec(y-1)})` and chain the links (see src/pricelens/reconstruction.py). The output type is `custom_chained_basket`, or `hbs_quintile_basket` when the weights come from the HBS.
+- **Chained annual:** for months `t` in year `y`, compute the link `L_t = sum_i(w_{i,y} * I_{i,t}/I_{i,Dec(y-1)})` and chain the links. The output type is `custom_chained_basket`, or `hbs_quintile_basket` when the weights come from the HBS.
 
 Every result returns:
 - the formula and mode;
@@ -61,9 +61,9 @@ Baskets are computed client-side, and user baskets are never persisted server-si
 
 **Reconstruction gate:** rebuild the all-items HICP from division indices and weights using the chained formula. Report the annual-rate gap in percentage points by country and year.
 
-**Tolerance (fixed at M1):** from 2001-01, per geo, the 95th percentile of |gap| must be ≤ 0.10 pp and the maximum ≤ 0.30 pp.
+**Tolerance:** from 2001-01, per geo, the 95th percentile of |gap| must be ≤ 0.10 pp and the maximum ≤ 0.30 pp.
 
-**M1 result:** 28 of 29 geos pass, with 95th-percentile gaps of 0.014–0.031 pp. Italy is a documented source-side exception (`pricelens.qa.KNOWN_EXCEPTIONS`; evidence in `reports/m1_qa.md`). Any new exception requires diagnostic evidence in the report.
+**Result:** 28 of 29 geos pass, with 95th-percentile gaps of 0.014–0.031 pp. Italy is a documented source-side exception (`pricelens.qa.KNOWN_EXCEPTIONS`; evidence in `reports/qa.md`). Any new exception requires diagnostic evidence in the report.
 
 **Rebase check:** the 2025=100 and 2015=100 series must give the same rates within rounding.
 

@@ -1,7 +1,9 @@
 # PriceLens AI
 ### What is getting more expensive, for whom, where — and what comes next
 
-**Status:** complete; the site runs locally as a static build and is not publicly hosted.
+**Live site:** [pricelens-ai-pied.vercel.app](https://pricelens-ai-pied.vercel.app)
+
+**Status:** complete. A static build; it can also be run locally.
 
 Inflation is reported as one headline number, but people buy different things. PriceLens is built on official Eurostat statistics. It shows:
 - which categories drive inflation in each EU country;
